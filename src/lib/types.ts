@@ -208,7 +208,8 @@ export interface DmiRun {
   /** Hash of (shopName + website + call date) used to avoid duplicate DMIs. */
   idempotencyKey: string;
   inspectionDate: string;
-  mode: "live" | "mock" | "hybrid";
+  /** Which mode produced this run. Fixed at intake; never edited. */
+  mode: "live" | "mock";
   verification: BusinessVerification | null;
   categories: CategoryResult[];
   budgets: BudgetRecommendation[];

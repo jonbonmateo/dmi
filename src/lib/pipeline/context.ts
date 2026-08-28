@@ -11,7 +11,7 @@ import type {
 import type { FetchResult } from "@/lib/providers/http";
 import { fetchPage } from "@/lib/providers/http";
 import { fixtureSection } from "@/lib/providers/mock";
-import { env } from "@/lib/env";
+import { isMock } from "@/lib/runtime-mode";
 import type { PlaceCandidate } from "@/lib/providers/places";
 import { log } from "@/lib/logger";
 
@@ -44,7 +44,7 @@ export class Ctx {
     const key = url.replace(/\/$/, "");
     if (!this.pageCache.has(key)) {
       log.debug("fetch", { url: key, run: this.run.id });
-      this.pageCache.set(key, env.forceMock ? fixturePage(key) : fetchPage(key));
+      this.pageCache.set(key, isMock() ? fixturePage(key) : fetchPage(key));
     }
     return this.pageCache.get(key)!;
   }
@@ -94,7 +94,7 @@ export class Ctx {
 }
 
 /**
- * In DMI_FORCE_MOCK mode the crawler is served from a fixture's `pages` map
+ * In mock mode the crawler is served from a fixture's `pages` map
  * instead of the network, so the whole pipeline can be demonstrated and
  * regression-tested with no internet connection and no live shop involved.
  */

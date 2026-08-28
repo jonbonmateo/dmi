@@ -8,6 +8,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { env } from "@/lib/env";
+import type { AuthAttempt, Session, User } from "@/lib/auth/types";
 import type {
   AdsBudgetCard,
   DmiRun,
@@ -18,6 +19,9 @@ import type {
 import type { Store } from "./types";
 
 type Tables = {
+  users: User[];
+  sessions: Session[];
+  auth_attempts: AuthAttempt[];
   prospects: Prospect[];
   runs: DmiRun[];
   review_items: ReviewItem[];
@@ -26,6 +30,9 @@ type Tables = {
 };
 
 const EMPTY: Tables = {
+  users: [],
+  sessions: [],
+  auth_attempts: [],
   prospects: [],
   runs: [],
   review_items: [],
@@ -68,6 +75,75 @@ export class LocalStore implements Store {
       await this.write(t);
       return result;
     });
+  }
+
+  /* ------------------------------------------------------------ accounts */
+  async upsertUser(u: User) {
+    return this.mutate((t) => {
+      const i = t.users.findIndex((x) => x.id === u.id);
+      if (i >= 0) t.users[i] = u;
+      else t.users.push(u);
+      return u;
+    });
+  }
+  async getUser(id: string) {
+    return (await this.read()).users.find((u) => u.id === id) ?? null;
+  }
+  async findUserByEmail(email: string) {
+    const e = email.toLowerCase();
+    return (await this.read()).users.find((u) => u.email?.toLowerCase() === e) ?? null;
+  }
+  async countUsers() {
+    // Guests do not count: otherwise the first real signup would not be admin.
+    return (await this.read()).users.filter((u) => u.role !== "guest").length;
+  }
+  async listUsers() {
+    return (await this.read()).users;
+  }
+
+  /* ------------------------------------------------------------ sessions */
+  async createSession(s: Session) {
+    return this.mutate((t) => {
+      t.sessions.push(s);
+      // Keep the table from growing forever on a long-lived local install.
+      const cutoff = Date.now() - 7 * 86_400_000;
+      t.sessions = t.sessions.filter((x) => Date.parse(x.expiresAt) > cutoff);
+      return s;
+    });
+  }
+  async getSession(id: string) {
+    return (await this.read()).sessions.find((s) => s.id === id) ?? null;
+  }
+  async updateSession(id: string, patch: Partial<Session>) {
+    return this.mutate((t) => {
+      const i = t.sessions.findIndex((s) => s.id === id);
+      if (i < 0) return null;
+      t.sessions[i] = { ...t.sessions[i], ...patch };
+      return t.sessions[i];
+    });
+  }
+  async revokeSession(id: string) {
+    await this.updateSession(id, { revokedAt: new Date().toISOString() });
+  }
+  async revokeUserSessions(userId: string) {
+    await this.mutate((t) => {
+      const now = new Date().toISOString();
+      for (const s of t.sessions) if (s.userId === userId && !s.revokedAt) s.revokedAt = now;
+    });
+  }
+
+  /* -------------------------------------------------------- rate limiting */
+  async addAuthAttempt(a: AuthAttempt) {
+    await this.mutate((t) => {
+      t.auth_attempts.push(a);
+      const cutoff = Date.now() - 24 * 3_600_000;
+      t.auth_attempts = t.auth_attempts.filter((x) => Date.parse(x.at) > cutoff);
+    });
+  }
+  async recentAuthAttempts(key: string, sinceIso: string) {
+    return (await this.read()).auth_attempts.filter(
+      (a) => a.key === key.toLowerCase() && a.at >= sinceIso,
+    );
   }
 
   async upsertProspect(p: Prospect) {

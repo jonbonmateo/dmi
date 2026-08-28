@@ -13,6 +13,7 @@ import { hash, newId } from "@/lib/pipeline/context";
 import { emptySteps } from "@/lib/pipeline";
 import type { DmiRun, Prospect } from "@/lib/types";
 import { log } from "@/lib/logger";
+import { currentMode } from "@/lib/runtime-mode";
 
 const nonEmpty = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
 
@@ -171,7 +172,7 @@ export async function intake(raw: IntakePayload): Promise<IntakeResult> {
     state: "queued",
     idempotencyKey: key,
     inspectionDate: now.slice(0, 10),
-    mode: "hybrid",
+    mode: currentMode(),
     verification: null,
     categories: [],
     budgets: [],

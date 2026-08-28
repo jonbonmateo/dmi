@@ -6,6 +6,7 @@
  * there is no fixture the criterion becomes `unable_to_evaluate`.
  */
 import { env, providerMode } from "@/lib/env";
+import { isMock } from "@/lib/runtime-mode";
 import { fetchJson } from "./http";
 import { fixtureSection, MOCK } from "./mock";
 import type { EvidenceStatus } from "@/lib/types";
@@ -82,7 +83,7 @@ async function runStrategy(
 }
 
 export async function getPageSpeed(url: string): Promise<PageSpeedResult> {
-  const mode = providerMode("pagespeed", env.pageSpeedKey ?? "unkeyed-ok");
+  const mode = providerMode("pagespeed", env.pageSpeedKey ?? "unkeyed-ok", isMock());
   if (mode.live) {
     // Sequential on purpose: PSI rate-limits parallel requests per key.
     const mobile = await runStrategy(url, "mobile");

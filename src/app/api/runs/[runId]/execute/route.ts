@@ -5,17 +5,25 @@
  */
 import { NextResponse } from "next/server";
 import { runPipeline } from "@/lib/pipeline";
+import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-export async function POST(_req: Request, { params }: { params: Promise<{ runId: string }> }) {
+export async function POST(req: Request, { params }: { params: Promise<{ runId: string }> }) {
+  // Inspections cost API quota and hit real third parties, so they are rate
+  // limited harder than ordinary reads and closed to guests.
+  const guard = await requireAuth(req, { roles: WRITE_ROLES, burstPerMinute: 10 });
+  if (!guard.ok) return guard.response;
+
   const { runId } = await params;
   try {
+    // runPipeline re-enters the mode the run was created in on its own.
     const run = await runPipeline(runId);
     return NextResponse.json({
       runId: run.id,
       state: run.state,
+      mode: run.mode,
       totalScore: run.totalScore,
       potentialTotalScore: run.potentialTotalScore,
       classification: run.classification,

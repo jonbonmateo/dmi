@@ -1,65 +1,78 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getAuth } from "@/lib/auth/session";
 import { getStore } from "@/lib/storage";
-import { Card } from "@/components/ui";
-import { ReviewForm } from "./review-form";
+import { AppShell } from "@/components/app-shell";
+import { EmptyState } from "@/components/ui";
+import { ReviewList, type ReviewRow } from "./review-list";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewQueue({
   searchParams,
 }: {
-  searchParams: Promise<{ runId?: string; status?: string }>;
+  searchParams: Promise<{ runId?: string }>;
 }) {
-  const { runId, status } = await searchParams;
+  const auth = await getAuth();
+  if (!auth) redirect("/login");
+  if (!auth.mode) redirect("/mode");
+
+  const { runId } = await searchParams;
   const store = getStore();
-  const items = await store.listReviewItems({ runId, status: status ?? "open" });
-  const runs = await Promise.all([...new Set(items.map((i) => i.runId))].map((id) => store.getRun(id)));
+
+  const [all, openAll] = await Promise.all([
+    store.listReviewItems(runId ? { runId } : {}),
+    store.listReviewItems({ status: "open" }),
+  ]);
+
+  const runIds = [...new Set(all.map((i) => i.runId))];
+  const runs = await Promise.all(runIds.map((id) => store.getRun(id)));
   const prospects = await Promise.all(runs.map((r) => (r ? store.getProspect(r.prospectId) : null)));
-  const shopByRun = new Map(runs.map((r, i) => [r?.id ?? "", prospects[i]?.shopName ?? "(unknown)"]));
+  const shopByRun = new Map(runIds.map((id, i) => [id, prospects[i]?.shopName ?? "(unknown shop)"]));
+
+  const rows: ReviewRow[] = all.map((i) => ({
+    id: i.id,
+    runId: i.runId,
+    findingId: i.findingId,
+    shopName: shopByRun.get(i.runId) ?? "(unknown shop)",
+    category: i.category,
+    reason: i.reason,
+    question: i.question,
+    instruction: i.instruction,
+    status: i.status,
+    resolution: i.resolution,
+    resolvedBy: i.resolvedBy,
+    resolvedAt: i.resolvedAt,
+    createdAt: i.createdAt,
+  }));
+
+  const canAnswer = auth.user.role !== "guest";
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <div className="mb-6 flex items-center justify-between text-sm">
-        <Link href="/" className="text-[var(--color-brand)] underline underline-offset-2">← All inspections</Link>
+    <AppShell auth={auth} active="review" openReviews={openAll.length}>
+      <header className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight">Review queue</h1>
+        <p className="mt-1.5 max-w-3xl text-[15px] text-[var(--color-ink-soft)]">
+          Questions the automation could not answer from public data. These are not errors — they are
+          the parts of an inspection that need a person, so no point was awarded either way. Answering
+          one updates the score, the band and the weekly tracking status straight away.
+        </p>
         {runId && (
-          <Link href={`/dmi/${runId}`} className="text-[var(--color-brand)] underline underline-offset-2">
-            Open this DMI
-          </Link>
+          <p className="mt-2 text-sm">
+            Filtered to one inspection.{" "}
+            <a href="/review" className="font-semibold text-[var(--color-brand)] hover:underline">
+              Show all
+            </a>
+          </p>
         )}
-      </div>
+      </header>
 
-      <h1 className="text-2xl font-bold">Review queue</h1>
-      <p className="mt-1 text-sm text-[var(--color-muted)]">
-        Questions the automation could not answer from public data. Answering one updates the DMI score, the classification and
-        the weekly tracking status straight away.
-      </p>
-
-      {items.length === 0 ? (
-        <Card className="mt-8 p-8 text-center">
-          <p className="font-medium">Nothing waiting.</p>
-          <p className="mt-1 text-sm text-[var(--color-muted)]">Every inspection is either complete or still running.</p>
-        </Card>
+      {rows.length === 0 ? (
+        <EmptyState title="Nothing waiting">
+          Every inspection is either complete or still running.
+        </EmptyState>
       ) : (
-        <div className="mt-8 space-y-4">
-          {items.map((item) => (
-            <Card key={item.id} className="p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
-                  {shopByRun.get(item.runId)} · {item.category}
-                  {item.findingId ? ` · ${item.findingId}` : ""}
-                </span>
-                <Link href={`/dmi/${item.runId}`} className="text-xs text-[var(--color-brand)] underline underline-offset-2">
-                  View DMI
-                </Link>
-              </div>
-              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-yellow)]">{item.reason}</p>
-              <p className="mt-1 whitespace-pre-wrap font-medium">{item.question}</p>
-              <p className="mt-1 text-sm text-[var(--color-muted)]">{item.instruction}</p>
-              <ReviewForm itemId={item.id} scorable={Boolean(item.findingId)} />
-            </Card>
-          ))}
-        </div>
+        <ReviewList rows={rows} canAnswer={canAnswer} />
       )}
-    </main>
+    </AppShell>
   );
 }

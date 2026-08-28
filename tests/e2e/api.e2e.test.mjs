@@ -1,0 +1,317 @@
+/**
+ * End-to-end over HTTP against a real `next start`: middleware, cookies,
+ * CSRF, rate limiting, role enforcement and the mode lifecycle.
+ */
+import { test, before, after, describe } from "node:test";
+import assert from "node:assert/strict";
+import { makeClient, startApp } from "./harness.mjs";
+
+let app;
+before(async () => { app = await startApp({ seed: true }); }, { timeout: 180_000 });
+after(async () => { await app?.stop(); });
+
+const PASSWORD = "brake fluid ledger nine";
+
+describe("unauthenticated access", () => {
+  test("health is public and reports live mode unavailable without credentials", async () => {
+    const c = makeClient(app.base);
+    const { status, data } = await c.get("/api/health");
+    assert.equal(status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(data.liveMode.available, false, "no Google Places key, so live must be blocked");
+    assert.ok(data.liveMode.requiredMissing.includes("google_places"));
+  });
+
+  test("API routes refuse anonymous callers", async () => {
+    const c = makeClient(app.base);
+    for (const url of ["/api/runs", "/api/review", "/api/auth/session"]) {
+      const { status, data } = await c.get(url);
+      if (url === "/api/auth/session") {
+        assert.equal(data.signedIn, false, "the session probe answers rather than 401s");
+      } else {
+        assert.equal(status, 401, `${url} must require a session`);
+      }
+    }
+  });
+
+  test("pages redirect to the sign-in screen", async () => {
+    const res = await fetch(`${app.base}/`, { redirect: "manual" });
+    assert.equal(res.status, 307);
+    assert.match(res.headers.get("location") ?? "", /\/login/);
+  });
+
+  test("a protected page preserves where you were going", async () => {
+    const res = await fetch(`${app.base}/tracking`, { redirect: "manual" });
+    assert.match(decodeURIComponent(res.headers.get("location") ?? ""), /next=\/tracking/);
+  });
+
+  test("security headers are set on every response", async () => {
+    const res = await fetch(`${app.base}/login`);
+    assert.match(res.headers.get("content-security-policy") ?? "", /frame-ancestors 'none'/);
+    assert.match(res.headers.get("content-security-policy") ?? "", /object-src 'none'/);
+    assert.equal(res.headers.get("x-frame-options"), "DENY");
+    assert.equal(res.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(res.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+    assert.match(res.headers.get("permissions-policy") ?? "", /geolocation=\(\)/);
+    assert.match(res.headers.get("cache-control") ?? "", /no-store/);
+  });
+});
+
+describe("sign-up and sign-in", () => {
+  test("a weak password is refused with specific reasons", async () => {
+    const c = makeClient(app.base);
+    const { status, data } = await c.post("/api/auth/signup", {
+      email: "weak@example.test",
+      password: "password123",
+    });
+    assert.equal(status, 400);
+    assert.ok(Array.isArray(data.problems) && data.problems.length > 0);
+  });
+
+  test("the first account is created as admin and is sent to choose a mode", async () => {
+    const c = makeClient(app.base);
+    const { status, data } = await c.post("/api/auth/signup", {
+      email: "admin@example.test",
+      password: PASSWORD,
+      name: "Admin Person",
+    });
+    assert.equal(status, 200);
+    assert.equal(data.user.role, "admin", "an empty deployment makes its first user the admin");
+    assert.equal(data.next, "/mode");
+    assert.ok(c.jar.get("dmi_session"), "a session cookie was set");
+    assert.ok(c.jar.get("dmi_csrf"), "a CSRF token was issued");
+  });
+
+  test("the same address cannot be registered twice", async () => {
+    const c = makeClient(app.base);
+    const { status } = await c.post("/api/auth/signup", {
+      email: "admin@example.test",
+      password: PASSWORD,
+    });
+    assert.equal(status, 409);
+  });
+
+  test("a wrong password and an unknown address give the same answer", async () => {
+    const c = makeClient(app.base);
+    const wrong = await c.post("/api/auth/login", { email: "admin@example.test", password: "not the password" });
+    const unknown = await c.post("/api/auth/login", { email: "nobody@example.test", password: "not the password" });
+    assert.equal(wrong.status, 401);
+    assert.equal(unknown.status, 401);
+    assert.equal(
+      wrong.data.error,
+      unknown.data.error,
+      "differing messages would let an attacker enumerate accounts",
+    );
+  });
+
+  test("the second account is a member, not an admin", async () => {
+    const c = makeClient(app.base);
+    const { data } = await c.post("/api/auth/signup", {
+      email: "member@example.test",
+      password: PASSWORD,
+      name: "Member Person",
+    });
+    assert.equal(data.user.role, "member");
+  });
+
+  test("repeated failures lock the address out", async () => {
+    const c = makeClient(app.base);
+    const email = "lockme@example.test";
+    await c.post("/api/auth/signup", { email, password: PASSWORD });
+    await c.post("/api/auth/logout", {});
+
+    let sawLockout = false;
+    for (let i = 0; i < 8; i++) {
+      const r = await c.post("/api/auth/login", { email, password: `wrong-${i}` });
+      if (r.status === 429) {
+        sawLockout = true;
+        assert.ok(r.headers.get("retry-after"), "a 429 must say how long to wait");
+        break;
+      }
+    }
+    assert.ok(sawLockout, "brute-forcing one address must eventually be blocked");
+  });
+});
+
+describe("mode lifecycle", () => {
+  async function signedIn(email) {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email, password: PASSWORD, name: "Test" });
+    return c;
+  }
+
+  test("live mode is refused while required settings are missing", async () => {
+    const c = await signedIn(`live-${Date.now()}@example.test`);
+    const { status, data } = await c.post("/api/auth/mode", { mode: "live" });
+    assert.equal(status, 412, "precondition failed, with the reason attached");
+    assert.ok(data.requiredMissing.some((m) => m.id === "google_places"));
+  });
+
+  test("mock mode starts, and cannot then be switched", async () => {
+    const c = await signedIn(`mock-${Date.now()}@example.test`);
+    const first = await c.post("/api/auth/mode", { mode: "mock" });
+    assert.equal(first.status, 200);
+    assert.equal(first.data.mode, "mock");
+
+    const again = await c.post("/api/auth/mode", { mode: "live" });
+    assert.equal(again.status, 409, "the mode is fixed for the life of the session");
+    assert.equal(again.data.mode, "mock");
+
+    const session = await c.get("/api/auth/session");
+    assert.equal(session.data.mode, "mock");
+  });
+
+  test("signing out and back in is how the mode changes", async () => {
+    const email = `switch-${Date.now()}@example.test`;
+    const c = await signedIn(email);
+    await c.post("/api/auth/mode", { mode: "mock" });
+    await c.post("/api/auth/logout", {});
+    assert.equal((await c.get("/api/auth/session")).data.signedIn, false);
+
+    await c.post("/api/auth/login", { email, password: PASSWORD });
+    const fresh = await c.get("/api/auth/session");
+    assert.equal(fresh.data.mode, null, "a new session starts with no mode chosen");
+  });
+});
+
+describe("guests", () => {
+  test("a guest is pinned to mock mode and cannot write", async () => {
+    const c = makeClient(app.base);
+    const { status, data } = await c.post("/api/auth/guest", {});
+    assert.equal(status, 200);
+    assert.equal(data.mode, "mock");
+    assert.equal(data.user.role, "guest");
+
+    const runs = await c.get("/api/runs");
+    assert.equal(runs.status, 200, "guests may read");
+    assert.ok(runs.data.runs.length > 0, "the seeded inspections are visible");
+
+    const items = await c.get("/api/review?status=open");
+    const target = items.data.items[0];
+    const write = await c.patch(`/api/review/${encodeURIComponent(target.id)}`, {
+      status: "resolved",
+      outcome: "pass",
+    });
+    assert.equal(write.status, 403, "guests must not be able to change a score");
+  });
+
+  test("a guest cannot escalate to live mode", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/guest", {});
+    const { status } = await c.post("/api/auth/mode", { mode: "live" });
+    assert.ok(status === 403 || status === 409, `expected refusal, got ${status}`);
+  });
+});
+
+describe("CSRF and sessions", () => {
+  test("a state-changing request without the CSRF header is refused", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email: `csrf-${Date.now()}@example.test`, password: PASSWORD });
+    await c.post("/api/auth/mode", { mode: "mock" });
+
+    const items = await c.get("/api/review?status=open");
+    const target = items.data.items[0];
+    const bare = await c.postWithoutCsrf(`/api/review/${encodeURIComponent(target.id)}`, {});
+    assert.ok(bare.status === 403 || bare.status === 405, `expected rejection, got ${bare.status}`);
+  });
+
+  test("a revoked session stops working immediately", async () => {
+    const email = `revoke-${Date.now()}@example.test`;
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email, password: PASSWORD });
+    assert.equal((await c.get("/api/runs")).status, 200);
+
+    await c.post("/api/auth/logout", {});
+    assert.equal((await c.get("/api/runs")).status, 401, "the cookie must not outlive the session record");
+  });
+
+  test("a forged session cookie is rejected", async () => {
+    const res = await fetch(`${app.base}/api/runs`, {
+      headers: { cookie: "dmi_session=forged.signature" },
+    });
+    assert.equal(res.status, 401);
+  });
+});
+
+describe("answering a review question", () => {
+  test("resolving an open item updates the score and attributes it to the signed-in user", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email: `answer-${Date.now()}@example.test`, password: PASSWORD, name: "Answerer" });
+    await c.post("/api/auth/mode", { mode: "mock" });
+
+    const runs = await c.get("/api/runs");
+    const run = runs.data.runs.find((r) => r.openReviews > 0);
+    assert.ok(run, "a seeded run should have open questions");
+
+    const before = await c.get(`/api/runs/${run.id}`);
+    const openItems = before.data.reviewItems.filter((i) => i.status === "open");
+    // Pick one attached to a criterion that is not already passing.
+    const undetermined = new Set(
+      before.data.run.categories
+        .flatMap((cat) => cat.findings)
+        .filter((f) => f.outcome === "undetermined")
+        .map((f) => f.id),
+    );
+    const target = openItems.find((i) => i.findingId && undetermined.has(i.findingId));
+    assert.ok(target, "expected an unresolved criterion to answer");
+
+    const res = await c.patch(`/api/review/${encodeURIComponent(target.id)}`, {
+      status: "resolved",
+      outcome: "pass",
+      resolution: "Checked by hand.",
+      by: "someone-else-entirely",
+    });
+    assert.equal(res.status, 200);
+    assert.equal(
+      res.data.run.totalScore,
+      before.data.run.totalScore + 1,
+      "answering one undetermined criterion moves the score by exactly one",
+    );
+
+    const after = await c.get(`/api/runs/${run.id}`);
+    const resolved = after.data.reviewItems.find((i) => i.id === target.id);
+    assert.equal(resolved.status, "resolved");
+    assert.equal(
+      resolved.resolvedBy,
+      "Answerer",
+      "the audit trail must record the signed-in user, not the client-supplied name",
+    );
+  });
+});
+
+describe("machine-to-machine endpoints", () => {
+  test("intake stays reachable without a session", async () => {
+    const res = await fetch(`${app.base}/api/intake`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        company_name: "Webhook Test Shop",
+        website_url: "southsidetire.example",
+        email: "webhook@example.test",
+        appointmentStartTime: "2026-10-01T15:00:00Z",
+      }),
+    });
+    assert.ok(res.status === 202 || res.status === 200, `got ${res.status}`);
+    const body = await res.json();
+    assert.ok(body.runId);
+  });
+
+  test("a duplicate webhook returns the same run", async () => {
+    const payload = {
+      company_name: "Webhook Test Shop",
+      website_url: "southsidetire.example",
+      email: "webhook@example.test",
+      appointmentStartTime: "2026-10-01T19:00:00Z",
+    };
+    const send = () =>
+      fetch(`${app.base}/api/intake`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      }).then((r) => r.json());
+    const a = await send();
+    const b = await send();
+    assert.equal(b.duplicate, true);
+    assert.equal(a.runId, b.runId);
+  });
+});

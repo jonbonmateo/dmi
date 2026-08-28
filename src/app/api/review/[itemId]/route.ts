@@ -11,10 +11,15 @@ import { getStore } from "@/lib/storage";
 import { totals } from "@/lib/scoring/rubric";
 import { refreshWeeklyStatus } from "@/lib/integrations/tracking";
 import type { Outcome } from "@/lib/types";
+import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ itemId: string }> }) {
+  // Guests may read the queue but must not change anyone's score.
+  const guard = await requireAuth(req, { roles: WRITE_ROLES });
+  if (!guard.ok) return guard.response;
+
   const { itemId } = await params;
   const store = getStore();
 
@@ -30,7 +35,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ itemId
   if (!item) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const now = new Date().toISOString();
-  const by = body.by ?? "unknown";
+  // Never trust a client-supplied identity for an audit field.
+  const by = guard.auth.user.name ?? guard.auth.user.email ?? guard.auth.user.id;
   const updated = await store.updateReviewItem(itemId, {
     status: body.status ?? "resolved",
     resolution: body.resolution ?? null,

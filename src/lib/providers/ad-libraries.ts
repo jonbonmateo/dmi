@@ -11,6 +11,7 @@
  *            one-click manual verification link.
  */
 import { env, providerMode } from "@/lib/env";
+import { isMock } from "@/lib/runtime-mode";
 import { fetchJson } from "./http";
 import { fixtureSection, MOCK } from "./mock";
 import type { EvidenceStatus } from "@/lib/types";
@@ -59,7 +60,7 @@ export async function getMetaAds(
   fixtureKey: string,
 ): Promise<AdActivityResult> {
   const verifyUrl = metaAdLibraryUrl(shopName);
-  const mode = providerMode("meta-ad-library", env.metaAdLibraryToken);
+  const mode = providerMode("meta-ad-library", env.metaAdLibraryToken, isMock());
 
   if (mode.live) {
     const qs = new URLSearchParams({
@@ -149,7 +150,10 @@ export async function getGoogleAds(
   onSite: GoogleAdsSignals,
 ): Promise<AdActivityResult> {
   const verifyUrl = googleTransparencyUrl(domain);
-  const fx = await fixtureSection<AdRecord[]>(fixtureKey, "googleAds");
+  // Only ever read the fixture in mock mode: in live mode a stale fixture
+  // masquerading as a real observation is exactly the failure this system
+  // exists to prevent.
+  const fx = isMock() ? await fixtureSection<AdRecord[]>(fixtureKey, "googleAds") : null;
   if (fx) {
     return {
       status: fx.length > 0 ? "confirmed" : "not_found",

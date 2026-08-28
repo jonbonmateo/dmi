@@ -1,33 +1,169 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens.
+ *
+ * Readability first: a 16px base, a 1.65 line height on body copy, and a
+ * measure capped around 70 characters. Colour is used sparingly — the four
+ * status colours have to stand out, so almost nothing else is allowed to.
+ */
 @theme {
-  --color-ink: #10151c;
-  --color-muted: #5b6672;
-  --color-line: #e3e7ec;
+  /* neutrals */
+  --color-canvas: #f7f8fa;
   --color-surface: #ffffff;
-  --color-canvas: #f6f7f9;
-  --color-brand: #1f4ed8;
-  --color-red: #c0342c;
-  --color-red-soft: #fdeceb;
-  --color-yellow: #a06a00;
-  --color-yellow-soft: #fdf3e0;
-  --color-green: #1c7a4a;
-  --color-green-soft: #e8f6ee;
-  --color-grey-soft: #eef1f4;
+  --color-raised: #fbfcfd;
+  --color-line: #e4e8ed;
+  --color-line-strong: #ccd3db;
+  --color-ink: #131a22;
+  --color-ink-soft: #3d4956;
+  --color-muted: #67727f;
+
+  /* brand */
+  --color-brand: #1d4ed8;
+  --color-brand-hover: #1a44bb;
+  --color-brand-soft: #eef3ff;
+  --color-focus: #2563eb;
+
+  /* status */
+  --color-red: #b3261e;
+  --color-red-soft: #fdecea;
+  --color-red-line: #f3c2bd;
+  --color-yellow: #8a5a00;
+  --color-yellow-soft: #fdf4e3;
+  --color-yellow-line: #eed9ac;
+  --color-green: #146c43;
+  --color-green-soft: #e7f5ed;
+  --color-green-line: #b7ddc7;
+  --color-grey-soft: #eef1f5;
+
+  /* mode banners */
+  --color-mock: #6d3bd6;
+  --color-mock-soft: #f2ecfd;
+  --color-mock-line: #d9c9f7;
+  --color-live: #0b6b5e;
+  --color-live-soft: #e5f5f2;
+  --color-live-line: #b3ded6;
+
+  --radius-card: 12px;
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-pop: 0 4px 6px -1px rgb(16 24 40 / 0.08), 0 10px 20px -6px rgb(16 24 40 / 0.12);
 }
 
-html { color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-canvas: #0e1319;
+    --color-surface: #151c24;
+    --color-raised: #1a222c;
+    --color-line: #263140;
+    --color-line-strong: #38465a;
+    --color-ink: #e8edf3;
+    --color-ink-soft: #c2ccd8;
+    --color-muted: #8d9aaa;
+
+    --color-brand: #7ba3ff;
+    --color-brand-hover: #9dbaff;
+    --color-brand-soft: #17233c;
+
+    --color-red: #ff9d94;
+    --color-red-soft: #33191a;
+    --color-red-line: #5d2c2b;
+    --color-yellow: #f0c26a;
+    --color-yellow-soft: #2f2515;
+    --color-yellow-line: #56421f;
+    --color-green: #6fd39b;
+    --color-green-soft: #14291f;
+    --color-green-line: #26543b;
+    --color-grey-soft: #1f2833;
+
+    --color-mock: #bfa2ff;
+    --color-mock-soft: #241b39;
+    --color-mock-line: #3d2f5c;
+    --color-live: #6ed6c5;
+    --color-live-soft: #102b28;
+    --color-live-line: #1f4f48;
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-pop: 0 10px 24px -8px rgb(0 0 0 / 0.6);
+  }
+}
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
-  font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  line-height: 1.25;
+  letter-spacing: -0.011em;
+  text-wrap: balance;
+}
+
+/* Body copy stays inside a comfortable measure without needing a class. */
+p { text-wrap: pretty; }
+
+code, pre, .tabular {
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* One consistent, visible focus ring everywhere. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input, select, textarea, button { font: inherit; color: inherit; }
+
+::placeholder { color: var(--color-muted); opacity: 1; }
+
+summary { cursor: pointer; }
+summary::-webkit-details-marker { display: none; }
+
+/* Skip link for keyboard users, visible only when focused. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--color-surface);
+  border: 2px solid var(--color-focus);
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @media print {
-  body { background: #fff; }
+  body { background: #fff; color: #000; font-size: 12px; }
   .no-print { display: none !important; }
   .print-break { break-inside: avoid; }
-  a[href]::after { content: " (" attr(href) ")"; font-size: 9px; color: #666; word-break: break-all; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9px;
+    color: #555;
+    word-break: break-all;
+  }
+  details { display: block !important; }
+  details > summary { display: none; }
 }

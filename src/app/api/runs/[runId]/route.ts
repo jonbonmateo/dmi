@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { getStore } from "@/lib/storage";
+import { requireAuth } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 
-export async function GET(_req: Request, { params }: { params: Promise<{ runId: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ runId: string }> }) {
+  const guard = await requireAuth(req, { readOnly: true });
+  if (!guard.ok) return guard.response;
   const { runId } = await params;
   const store = getStore();
   const run = await store.getRun(runId);

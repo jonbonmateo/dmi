@@ -7,6 +7,7 @@
  * the first one.
  */
 import { env, providerMode } from "@/lib/env";
+import { isMock } from "@/lib/runtime-mode";
 import { fixtureSection, MOCK } from "./mock";
 import type { EvidenceStatus } from "@/lib/types";
 
@@ -87,7 +88,7 @@ export async function searchBusiness(
   query: string,
   fixtureKey?: string,
 ): Promise<PlacesResult> {
-  const mode = providerMode("google-places", env.googleMapsKey);
+  const mode = providerMode("google-places", env.googleMapsKey, isMock());
   if (mode.live) {
     try {
       const r = await fetch(SEARCH, {
@@ -131,10 +132,9 @@ export async function searchBusiness(
     }
   }
 
-  const fx = await fixtureSection<PlaceCandidate[]>(
-    fixtureKey ?? query,
-    "places",
-  );
+  const fx = isMock()
+    ? await fixtureSection<PlaceCandidate[]>(fixtureKey ?? query, "places")
+    : null;
   if (!fx) {
     return {
       status: "unable_to_evaluate",

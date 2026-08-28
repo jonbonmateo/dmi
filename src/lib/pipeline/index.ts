@@ -16,6 +16,7 @@ import { getStore } from "@/lib/storage";
 import { log } from "@/lib/logger";
 import { totals } from "@/lib/scoring/rubric";
 import { env } from "@/lib/env";
+import { withMode } from "@/lib/runtime-mode";
 import type { CategoryResult, DmiRun, Prospect, StepName, StepRecord } from "@/lib/types";
 import { STEP_ORDER } from "@/lib/types";
 import { Ctx } from "./context";
@@ -63,6 +64,15 @@ function setCategory(run: DmiRun, result: CategoryResult) {
 }
 
 export async function runPipeline(runId: string): Promise<DmiRun> {
+  const store = getStore();
+  const existing = await store.getRun(runId);
+  // Re-enter the mode the run was created in, so a resumed run cannot switch
+  // from fixtures to live data (or back) halfway through its own findings.
+  if (existing) return withMode(existing.mode, () => runPipelineInner(runId));
+  return runPipelineInner(runId);
+}
+
+async function runPipelineInner(runId: string): Promise<DmiRun> {
   const store = getStore();
   const run = await store.getRun(runId);
   if (!run) throw new Error(`run ${runId} not found`);

@@ -11,7 +11,10 @@
     "typecheck": "tsc --noEmit",
     "dmi": "tsx scripts/run-dmi.ts",
     "seed": "tsx scripts/seed.ts",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "test:e2e": "npm run build && node --test tests/e2e/*.e2e.test.mjs",
+    "test:e2e:only": "node --test tests/e2e/*.e2e.test.mjs",
+    "test:all": "npm run test && npm run test:e2e"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
@@ -28,6 +31,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "playwright": "^1.60.0",
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
     "typescript": "^5"

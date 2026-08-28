@@ -15,6 +15,7 @@
 import { fetchPage } from "./http";
 import { parse, visibleText } from "./html";
 import { fixtureSection, MOCK } from "./mock";
+import { isMock } from "@/lib/runtime-mode";
 import type { EvidenceStatus } from "@/lib/types";
 
 export interface CitationSource {
@@ -75,10 +76,12 @@ export interface CitationInputs {
 }
 
 export async function getCitations(input: CitationInputs): Promise<CitationResult> {
-  const fx = await fixtureSection<{ scorePercent: number; sources?: CitationSource[] }>(
-    input.fixtureKey,
-    "citations",
-  );
+  const fx = isMock()
+    ? await fixtureSection<{ scorePercent: number; sources?: CitationSource[] }>(
+        input.fixtureKey,
+        "citations",
+      )
+    : null;
   if (fx) {
     return {
       status: "confirmed",

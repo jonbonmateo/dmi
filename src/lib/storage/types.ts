@@ -1,3 +1,4 @@
+import type { AuthAttempt, Session, User } from "@/lib/auth/types";
 import type {
   AdsBudgetCard,
   DmiRun,
@@ -8,6 +9,24 @@ import type {
 
 export interface Store {
   driver: "supabase" | "local";
+
+  /* ------------------------------------------------------------ accounts */
+  upsertUser(u: User): Promise<User>;
+  getUser(id: string): Promise<User | null>;
+  findUserByEmail(email: string): Promise<User | null>;
+  countUsers(): Promise<number>;
+  listUsers(): Promise<User[]>;
+
+  /* ------------------------------------------------------------ sessions */
+  createSession(s: Session): Promise<Session>;
+  getSession(id: string): Promise<Session | null>;
+  updateSession(id: string, patch: Partial<Session>): Promise<Session | null>;
+  revokeSession(id: string): Promise<void>;
+  revokeUserSessions(userId: string): Promise<void>;
+
+  /* -------------------------------------------------------- rate limiting */
+  addAuthAttempt(a: AuthAttempt): Promise<void>;
+  recentAuthAttempts(key: string, sinceIso: string): Promise<AuthAttempt[]>;
 
   upsertProspect(p: Prospect): Promise<Prospect>;
   getProspect(id: string): Promise<Prospect | null>;

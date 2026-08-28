@@ -119,3 +119,65 @@ alter table dmi_tracking_rows enable row level security;
 alter table dmi_budget_cards  enable row level security;
 
 -- No permissive policies are created on purpose: anon/authenticated get nothing.
+
+-- ===========================================================================
+-- Authentication
+-- ===========================================================================
+
+create table if not exists dmi_users (
+  id            text primary key,
+  email         text,
+  name          text,
+  role          text not null default 'member',
+  provider      text not null default 'password',
+  password_hash text,
+  avatar_url    text,
+  onboarded_at  timestamptz,
+  disabled_at   timestamptz,
+  last_login_at timestamptz,
+  created_at    timestamptz not null default now(),
+  constraint dmi_users_role_chk check (role in ('admin','member','guest')),
+  constraint dmi_users_provider_chk check (provider in ('password','google','guest'))
+);
+-- Case-insensitive uniqueness, but only for real accounts: guests have no email.
+create unique index if not exists dmi_users_email_uniq
+  on dmi_users (lower(email)) where email is not null;
+
+create table if not exists dmi_sessions (
+  id           text primary key,
+  user_id      text not null references dmi_users(id) on delete cascade,
+  -- 'live' or 'mock', chosen once at sign-in and never changed afterwards.
+  mode         text,
+  csrf_secret  text not null,
+  ip           text,
+  user_agent   text,
+  created_at   timestamptz not null default now(),
+  expires_at   timestamptz not null,
+  last_seen_at timestamptz not null default now(),
+  revoked_at   timestamptz,
+  constraint dmi_sessions_mode_chk check (mode is null or mode in ('live','mock'))
+);
+create index if not exists dmi_sessions_user_idx on dmi_sessions (user_id, revoked_at);
+create index if not exists dmi_sessions_expiry_idx on dmi_sessions (expires_at);
+
+create table if not exists dmi_auth_attempts (
+  id      text primary key,
+  key     text not null,
+  ip      text,
+  success boolean not null,
+  reason  text,
+  at      timestamptz not null default now()
+);
+create index if not exists dmi_auth_attempts_key_idx on dmi_auth_attempts (key, at desc);
+
+alter table dmi_users         enable row level security;
+alter table dmi_sessions      enable row level security;
+alter table dmi_auth_attempts enable row level security;
+-- No permissive policies: only the service-role key (server-side) may read
+-- these. A leaked anon key must never be able to enumerate password hashes.
+
+-- Housekeeping. Call from a scheduled job, or leave it: the app also prunes.
+create or replace function dmi_prune_auth() returns void language sql as $$
+  delete from dmi_sessions where expires_at < now() - interval '7 days';
+  delete from dmi_auth_attempts where at < now() - interval '24 hours';
+$$;

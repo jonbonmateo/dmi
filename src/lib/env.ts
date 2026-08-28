@@ -46,6 +46,28 @@ export const env = {
   get cronSecret() {
     return str("CRON_SECRET");
   },
+  get authSecret() {
+    return str("AUTH_SECRET");
+  },
+  get googleClientId() {
+    return str("GOOGLE_OAUTH_CLIENT_ID");
+  },
+  get googleClientSecret() {
+    return str("GOOGLE_OAUTH_CLIENT_SECRET");
+  },
+  /** Empty = any domain may sign in with Google. */
+  get allowedEmailDomains(): string[] {
+    const raw = str("AUTH_ALLOWED_DOMAINS");
+    return raw ? raw.split(",").map((d) => d.trim().toLowerCase()).filter(Boolean) : [];
+  },
+  /** Guest sign-in is on by default; it is mock-mode only. */
+  get allowGuest() {
+    return str("AUTH_ALLOW_GUEST") !== "0";
+  },
+  /** Self-service sign-up. Turn off once the team's accounts exist. */
+  get allowSignup() {
+    return str("AUTH_ALLOW_SIGNUP") !== "0";
+  },
   /** Force every provider into mock mode, for demos and tests. */
   get forceMock() {
     return str("DMI_FORCE_MOCK") === "1";
@@ -67,9 +89,11 @@ export interface ProviderMode {
 export function providerMode(
   name: string,
   credential: string | null,
+  /** Injected by callers that know the session's mode; defaults to the env flag. */
+  mock = env.forceMock,
 ): ProviderMode {
-  if (env.forceMock) {
-    return { live: false, reason: `${name}: DMI_FORCE_MOCK=1, using fixtures` };
+  if (mock) {
+    return { live: false, reason: `${name}: mock mode, using fixtures` };
   }
   if (!credential) {
     return {

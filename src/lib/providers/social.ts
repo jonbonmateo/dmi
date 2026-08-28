@@ -15,6 +15,7 @@
 import { fetchPage } from "./http";
 import { parse, attr } from "./html";
 import { fixtureSection, MOCK } from "./mock";
+import { isMock } from "@/lib/runtime-mode";
 import type { EvidenceStatus } from "@/lib/types";
 
 export interface SocialPost {
@@ -95,10 +96,12 @@ export async function getSocialProfile(
   fixtureKey: string,
   discoveredFrom: string | null,
 ): Promise<SocialProfile> {
-  const fx = await fixtureSection<Partial<SocialProfile>>(
-    fixtureKey,
-    platform === "facebook" ? "facebookProfile" : "instagramProfile",
-  );
+  const fx = isMock()
+    ? await fixtureSection<Partial<SocialProfile>>(
+        fixtureKey,
+        platform === "facebook" ? "facebookProfile" : "instagramProfile",
+      )
+    : null;
   if (fx) {
     const posts = fx.posts ?? [];
     return {

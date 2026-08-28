@@ -7,6 +7,7 @@
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
+import type { AuthAttempt, Session, User } from "@/lib/auth/types";
 import type {
   AdsBudgetCard,
   DmiRun,
@@ -23,6 +24,78 @@ function client(): SupabaseClient {
 }
 
  
+
+const userToRow = (u: User) => ({
+  id: u.id,
+  email: u.email,
+  name: u.name,
+  role: u.role,
+  provider: u.provider,
+  password_hash: u.passwordHash,
+  avatar_url: u.avatarUrl,
+  onboarded_at: u.onboardedAt,
+  disabled_at: u.disabledAt,
+  last_login_at: u.lastLoginAt,
+  created_at: u.createdAt,
+});
+
+const userFromRow = (r: any): User => ({
+  id: r.id,
+  email: r.email,
+  name: r.name,
+  role: r.role,
+  provider: r.provider,
+  passwordHash: r.password_hash,
+  avatarUrl: r.avatar_url,
+  onboardedAt: r.onboarded_at,
+  disabledAt: r.disabled_at,
+  lastLoginAt: r.last_login_at,
+  createdAt: r.created_at,
+});
+
+const sessionToRow = (s: Session) => ({
+  id: s.id,
+  user_id: s.userId,
+  mode: s.mode,
+  csrf_secret: s.csrfSecret,
+  ip: s.ip,
+  user_agent: s.userAgent,
+  created_at: s.createdAt,
+  expires_at: s.expiresAt,
+  last_seen_at: s.lastSeenAt,
+  revoked_at: s.revokedAt,
+});
+
+const sessionFromRow = (r: any): Session => ({
+  id: r.id,
+  userId: r.user_id,
+  mode: r.mode,
+  csrfSecret: r.csrf_secret,
+  ip: r.ip,
+  userAgent: r.user_agent,
+  createdAt: r.created_at,
+  expiresAt: r.expires_at,
+  lastSeenAt: r.last_seen_at,
+  revokedAt: r.revoked_at,
+});
+
+const attemptToRow = (a: AuthAttempt) => ({
+  id: a.id,
+  key: a.key,
+  ip: a.ip,
+  success: a.success,
+  reason: a.reason,
+  at: a.at,
+});
+
+const attemptFromRow = (r: any): AuthAttempt => ({
+  id: r.id,
+  key: r.key,
+  ip: r.ip,
+  success: r.success,
+  reason: r.reason,
+  at: r.at,
+});
 
 const prospectToRow = (p: Prospect) => ({
   id: p.id,
@@ -202,6 +275,89 @@ function unwrap<T>(res: { data: T | null; error: { message: string } | null }): 
 export class SupabaseStore implements Store {
   driver = "supabase" as const;
   private db = client();
+
+  /* ------------------------------------------------------------ accounts */
+  async upsertUser(u: User) {
+    const data = unwrap(
+      await this.db.from("dmi_users").upsert(userToRow(u)).select().single(),
+    );
+    return userFromRow(data);
+  }
+  async getUser(id: string) {
+    const { data } = await this.db.from("dmi_users").select().eq("id", id).maybeSingle();
+    return data ? userFromRow(data) : null;
+  }
+  async findUserByEmail(email: string) {
+    const { data } = await this.db
+      .from("dmi_users")
+      .select()
+      .ilike("email", email)
+      .maybeSingle();
+    return data ? userFromRow(data) : null;
+  }
+  async countUsers() {
+    // Guests are excluded so the first real signup still becomes admin.
+    const { count } = await this.db
+      .from("dmi_users")
+      .select("id", { count: "exact", head: true })
+      .neq("role", "guest");
+    return count ?? 0;
+  }
+  async listUsers() {
+    const { data } = await this.db.from("dmi_users").select().order("created_at");
+    return (data ?? []).map(userFromRow);
+  }
+
+  /* ------------------------------------------------------------ sessions */
+  async createSession(s: Session) {
+    const data = unwrap(
+      await this.db.from("dmi_sessions").insert(sessionToRow(s)).select().single(),
+    );
+    return sessionFromRow(data);
+  }
+  async getSession(id: string) {
+    const { data } = await this.db.from("dmi_sessions").select().eq("id", id).maybeSingle();
+    return data ? sessionFromRow(data) : null;
+  }
+  async updateSession(id: string, patch: Partial<Session>) {
+    const row: Record<string, unknown> = {};
+    if (patch.mode !== undefined) row.mode = patch.mode;
+    if (patch.lastSeenAt !== undefined) row.last_seen_at = patch.lastSeenAt;
+    if (patch.revokedAt !== undefined) row.revoked_at = patch.revokedAt;
+    if (patch.expiresAt !== undefined) row.expires_at = patch.expiresAt;
+    const { data } = await this.db
+      .from("dmi_sessions")
+      .update(row)
+      .eq("id", id)
+      .select()
+      .maybeSingle();
+    return data ? sessionFromRow(data) : null;
+  }
+  async revokeSession(id: string) {
+    await this.db.from("dmi_sessions").update({ revoked_at: new Date().toISOString() }).eq("id", id);
+  }
+  async revokeUserSessions(userId: string) {
+    await this.db
+      .from("dmi_sessions")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("user_id", userId)
+      .is("revoked_at", null);
+  }
+
+  /* -------------------------------------------------------- rate limiting */
+  async addAuthAttempt(a: AuthAttempt) {
+    unwrap(await this.db.from("dmi_auth_attempts").insert(attemptToRow(a)).select());
+  }
+  async recentAuthAttempts(key: string, sinceIso: string) {
+    const { data } = await this.db
+      .from("dmi_auth_attempts")
+      .select()
+      .eq("key", key.toLowerCase())
+      .gte("at", sinceIso)
+      .order("at", { ascending: false })
+      .limit(50);
+    return (data ?? []).map(attemptFromRow);
+  }
 
   async upsertProspect(p: Prospect) {
     const data = unwrap(

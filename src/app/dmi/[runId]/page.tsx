@@ -1,10 +1,22 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getStore } from "@/lib/storage";
+import { getAuth } from "@/lib/auth/session";
+import { AppShell } from "@/components/app-shell";
 import { CLASSIFICATION_LABEL } from "@/lib/scoring/rubric";
 import { CATEGORY_LABELS } from "@/lib/types";
 import type { CategoryResult, Evidence, Finding } from "@/lib/types";
-import { Card, ClassificationBadge, ExternalLink, Field, OutcomeMark, StatusPill } from "@/components/ui";
+import {
+  Callout,
+  Card,
+  CardHeader,
+  ExternalLink,
+  Field,
+  ModeBadge,
+  OutcomeMark,
+  ScoreBadge,
+  StatusPill,
+} from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -72,16 +84,20 @@ function CategoryBlock({ c }: { c: CategoryResult }) {
   const captured = Object.entries(c.captured).filter(([, v]) => v !== null && v !== undefined);
   return (
     <Card className="mb-6 overflow-hidden print-break">
-      <header className="flex flex-wrap items-center justify-between gap-3 bg-[var(--color-canvas)] px-5 py-3">
-        <h2 className="font-semibold">{CATEGORY_LABELS[c.category]}</h2>
-        <div className="text-sm">
-          <strong className="text-lg">{c.score}</strong>
-          <span className="text-[var(--color-muted)]">/5</span>
-          {c.potentialScore > c.score && (
-            <span className="ml-2 text-xs text-[var(--color-muted)]">could reach {c.potentialScore}/5 after review</span>
-          )}
-        </div>
-      </header>
+      <CardHeader
+        title={CATEGORY_LABELS[c.category]}
+        right={
+          <div className="text-right">
+            <span className="tabular text-2xl font-bold">{c.score}</span>
+            <span className="text-[var(--color-muted)]">/5</span>
+            {c.potentialScore > c.score && (
+              <p className="text-xs text-[var(--color-muted)]">
+                could reach {c.potentialScore}/5 after review
+              </p>
+            )}
+          </div>
+        }
+      />
 
       {captured.length > 0 && (
         <dl className="grid gap-4 border-b border-[var(--color-line)] px-5 py-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -98,7 +114,7 @@ function CategoryBlock({ c }: { c: CategoryResult }) {
       </ul>
 
       {c.notes.length > 0 && (
-        <div className="border-t border-[var(--color-line)] bg-[var(--color-canvas)] px-5 py-3 text-xs text-[var(--color-muted)]">
+        <div className="border-t border-[var(--color-line)] bg-[var(--color-raised)] px-5 py-3 text-xs text-[var(--color-muted)]">
           {c.notes.map((n, i) => (
             <p key={i}>{n}</p>
           ))}
@@ -109,6 +125,10 @@ function CategoryBlock({ c }: { c: CategoryResult }) {
 }
 
 export default async function DmiReport({ params }: { params: Promise<{ runId: string }> }) {
+  const auth = await getAuth();
+  if (!auth) redirect("/login");
+  if (!auth.mode) redirect("/mode");
+
   const { runId } = await params;
   const store = getStore();
   const run = await store.getRun(runId);
@@ -120,16 +140,31 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
     store.getBudgetCardByRun(runId),
   ]);
   const open = reviews.filter((r) => r.status === "open");
+  const allOpen = await store.listReviewItems({ status: "open" });
   const v = run.verification;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <div className="no-print mb-6 flex items-center justify-between text-sm">
-        <Link href="/" className="text-[var(--color-brand)] underline underline-offset-2">← All inspections</Link>
-        <Link href={`/review?runId=${run.id}`} className="text-[var(--color-brand)] underline underline-offset-2">
+    <AppShell auth={auth} active={null} openReviews={allOpen.length}>
+      <div className="no-print mb-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+        <Link href="/" className="font-medium text-[var(--color-brand)] hover:underline">
+          ← All inspections
+        </Link>
+        <Link
+          href={`/review?runId=${run.id}`}
+          className="font-medium text-[var(--color-brand)] hover:underline"
+        >
           Review queue ({open.length} open)
         </Link>
       </div>
+
+      {run.mode === "mock" && (
+        <div className="mb-6">
+          <Callout tone="warn" title="This inspection used mock data">
+            Every finding below came from bundled fixtures, not from a real observation of this shop.
+            It is a demonstration of the report, not an assessment of the business.
+          </Callout>
+        </div>
+      )}
 
       {/* ------------------------------------------------------- header */}
       <Card className="mb-6 p-6">
@@ -150,7 +185,7 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
               <Field label="Heard about us" value={prospect?.heardAboutUs} />
             </dl>
             {prospect?.marketingPainPoint && (
-              <div className="mt-4 rounded bg-[var(--color-canvas)] p-3">
+              <div className="mt-4 rounded bg-[var(--color-raised)] p-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--color-muted)]">
                   What they want to improve
                 </p>
@@ -159,7 +194,10 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
             )}
           </div>
           {run.classification && (
-            <ClassificationBadge c={run.classification} score={run.totalScore} potential={run.potentialTotalScore} />
+            <div className="flex flex-col items-end gap-2">
+              <ScoreBadge c={run.classification} score={run.totalScore} potential={run.potentialTotalScore} />
+              <ModeBadge mode={run.mode} />
+            </div>
           )}
         </div>
         {run.classification && (
@@ -200,7 +238,7 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
             </div>
           )}
           {v.ambiguities.length > 0 && (
-            <div className="mt-4 rounded border border-[var(--color-line)] bg-[var(--color-canvas)] p-3">
+            <div className="mt-4 rounded border border-[var(--color-line)] bg-[var(--color-raised)] p-3">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--color-muted)]">Needs confirming</p>
               <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">{v.ambiguities.map((s, i) => <li key={i}>{s}</li>)}</ul>
             </div>
@@ -245,9 +283,7 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
       {/* -------------------------------------------------------- budgets */}
       {run.budgets.length > 0 && (
         <Card className="mb-6 overflow-hidden print-break">
-          <header className="bg-[var(--color-canvas)] px-5 py-3">
-            <h2 className="font-semibold">Suggested monthly advertising budgets</h2>
-          </header>
+          <CardHeader title="Suggested monthly advertising budgets" />
           <div className="divide-y divide-[var(--color-line)]">
             {run.budgets.map((b) => (
               <div key={b.channel} className="px-5 py-4">
@@ -284,7 +320,7 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
             ))}
           </div>
           {card?.totalMonthlyUsd != null && (
-            <div className="border-t border-[var(--color-line)] bg-[var(--color-canvas)] px-5 py-3 text-sm">
+            <div className="border-t border-[var(--color-line)] bg-[var(--color-raised)] px-5 py-3 text-sm">
               <strong>Ads Budget Card {card.id}</strong> — total ${card.totalMonthlyUsd.toLocaleString()}/month
             </div>
           )}
@@ -345,9 +381,10 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
       </details>
 
       <footer className="mt-10 border-t border-[var(--color-line)] pt-4 text-xs text-[var(--color-muted)]">
-        Run {run.id} · state {run.state} · mode {run.mode} · generated {new Date(run.updatedAt).toLocaleString()}.
-        A criterion earns a point only when confirmed evidence shows it is met; anything unconfirmed is listed above rather than guessed at.
+        Run {run.id} · state {run.state} · {run.mode} data · generated{" "}
+        {new Date(run.updatedAt).toLocaleString()}. A criterion earns a point only when confirmed
+        evidence shows it is met; anything unconfirmed is listed above rather than guessed at.
       </footer>
-    </main>
+    </AppShell>
   );
 }
