@@ -1,0 +1,234 @@
+{
+  "domain": "millersgarage.example",
+  "_comment": "Demo fixture: an average shop. Lands yellow, with several criteria routed to human review.",
+  "pages": {
+    "/": "<!doctype html><html lang=\"en\"><head>\n<title>Miller's Garage | Auto Repair in Toledo, OH</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Auto repair in Toledo since 2003. Brakes, oil changes, diagnostics and tires.\">\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-ABC123\"></script>\n<script>gtag('config', 'AW-556677889');</script>\n<script>!function(f,b,e,v){}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','778899');</script>\n<script src=\"https://acsbapp.com/apps/app/dist/js/app.js\"></script>\n</head><body>\n<header><img src=\"/logo.png\" alt=\"Miller's Garage logo\">\n<nav><a href=\"/services/brake-repair\">Brake Repair</a><a href=\"/services/oil-change\">Oil Change</a><a href=\"/services/engine-diagnostics\">Engine Diagnostics</a>\n<a href=\"/about\">About</a><a href=\"/contact\">Contact</a><a href=\"/blog\">Blog</a></nav>\n<a href=\"tel:(419) 555-0188\">(419) 555-0188</a>\n<a href=\"/contact\">Request an Estimate</a></header>\n<main><h1>Miller's Garage</h1>\n<h2>Services We Offer</h2><h2>Why Toledo Trusts Us</h2>\n<p>Miller's Garage has served Toledo drivers for over twenty years. Brakes, oil changes, diagnostics and more.</p>\n<address>880 Monroe Street, Toledo, OH 43604</address>\n<img src=\"/img/shop.jpg\" alt=\"Our shop on Monroe Street\">\n<img src=\"https://images.unsplash.com/photo-mechanic-generic\" alt=\"Mechanic\">\n<img src=\"/img/stock-photo-engine-bay.jpg\" alt=\"\">\n<img src=\"/img/hero-bg-2.jpg\" alt=\"\">\n<a href=\"/contact\">Contact Us</a>\n</main>\n<footer><a href=\"https://www.facebook.com/millersgaragetoledo\">Facebook</a>\n<p>Miller's Garage - 880 Monroe Street, Toledo, OH 43604 - (419) 555-0188</p></footer>\n</body></html>",
+    "/blog": "<!doctype html><html lang=\"en\"><head><title>Blog | Miller's Garage Toledo</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Car care tips and shop news from the Miller's Garage team in Toledo.\">\n</head><body><h1>Blog</h1><h2>Latest</h2><h2>Categories</h2>\n<article><h2><a href=\"/blog/1\">What that grinding noise when you brake actually means</a></h2><time datetime=\"2026-08-12\">2026-08-12</time></article>\n<article><h2><a href=\"/blog/2\">Winter tire tips for Ohio drivers</a></h2><time datetime=\"2026-01-14\">2026-01-14</time></article>\n<article><h2><a href=\"/blog/3\">When to replace your battery</a></h2><time datetime=\"2025-11-02\">2025-11-02</time></article>\n</body></html>",
+    "/services/brake-repair": "<!doctype html><html lang=\"en\"><head><title>Brake Repair | Miller's Garage</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Brake Repair in Toledo, OH. Free inspection and a written estimate before any work begins.\">\n</head><body><h1>Brake Repair</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/brake-repair.jpg\" alt=\"Brake Repair at Miller's Garage\">\n<p>Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing.</p><a href=\"/contact\">Contact</a><a href=\"/blog\">Blog</a><a href=\"/services/oil-change\">Oil Change</a></body></html>",
+    "/services/oil-change": "<!doctype html><html lang=\"en\"><head><title>Oil Change | Miller's Garage</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Oil Change in Toledo, OH. Free inspection and a written estimate before any work begins.\">\n</head><body><h1>Oil Change</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/oil-change.jpg\" alt=\"Oil Change at Miller's Garage\">\n<p>Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing.</p><a href=\"/contact\">Contact</a><a href=\"/blog\">Blog</a><a href=\"/services/oil-change\">Oil Change</a></body></html>",
+    "/services/engine-diagnostics": "<!doctype html><html lang=\"en\"><head><title>Engine Diagnostics | Miller's Garage</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Engine Diagnostics in Toledo, OH. Free inspection and a written estimate before any work begins.\">\n</head><body><h1>Engine Diagnostics</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/engine-diagnostics.jpg\" alt=\"Engine Diagnostics at Miller's Garage\">\n<p>Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing. Our technicians inspect, measure and replace only what actually needs replacing.</p><a href=\"/contact\">Contact</a><a href=\"/blog\">Blog</a><a href=\"/services/oil-change\">Oil Change</a></body></html>"
+  },
+  "pagespeed": {
+    "mobile": 54,
+    "desktop": 79
+  },
+  "places": [
+    {
+      "placeId": "gp_millers",
+      "name": "Miller's Garage",
+      "formattedAddress": "880 Monroe St, Toledo, OH 43604, USA",
+      "phone": "+1 419-555-0188",
+      "website": "https://millersgarage.example",
+      "rating": 4.3,
+      "reviewCount": 87,
+      "mapsUrl": "https://maps.google.com/?cid=9001",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 9,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-09T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_m1",
+      "name": "Monroe Street Auto",
+      "formattedAddress": "1200 Monroe St, Toledo, OH",
+      "phone": "+1 419-555-0122",
+      "website": null,
+      "rating": 4.0,
+      "reviewCount": 54,
+      "mapsUrl": "https://maps.google.com/?cid=9002",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 6,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-01T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_m2",
+      "name": "Toledo Tire & Service",
+      "formattedAddress": "3400 Secor Rd, Toledo, OH",
+      "phone": "+1 419-555-0166",
+      "website": null,
+      "rating": 4.2,
+      "reviewCount": 140,
+      "mapsUrl": "https://maps.google.com/?cid=9003",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 15,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-14T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_m3",
+      "name": "Westgate Car Care",
+      "formattedAddress": "3200 W Central Ave, Toledo, OH",
+      "phone": "+1 419-555-0111",
+      "website": null,
+      "rating": 4.5,
+      "reviewCount": 73,
+      "mapsUrl": "https://maps.google.com/?cid=9004",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": false,
+      "photoCount": 0,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-07-28T00:00:00Z",
+      "editorialSummary": null
+    }
+  ],
+  "citations": {
+    "scorePercent": 48,
+    "sources": [
+      {
+        "name": "BrightLocal citation audit",
+        "url": "https://www.brightlocal.com/",
+        "found": true,
+        "nameMatch": true,
+        "phoneMatch": false,
+        "addressMatch": true,
+        "note": "Old phone number still listed on 14 of 52 directories."
+      }
+    ]
+  },
+  "googleAds": [
+    {
+      "id": "mg1",
+      "platform": "google",
+      "headline": "Toledo Brake Repair | Free Inspection",
+      "body": "Written estimate before any work.",
+      "firstSeen": "2026-06-20",
+      "landingUrl": "https://millersgarage.example/services/brake-repair",
+      "sourceUrl": "https://adstransparency.google.com/advertiser/AR77"
+    },
+    {
+      "id": "mg2",
+      "platform": "google",
+      "headline": "$29 Oil Change Toledo",
+      "body": "No appointment needed.",
+      "firstSeen": "2026-08-01",
+      "landingUrl": "https://millersgarage.example/services/oil-change",
+      "sourceUrl": "https://adstransparency.google.com/advertiser/AR77"
+    }
+  ],
+  "metaAds": [
+    {
+      "id": "mm1",
+      "platform": "meta",
+      "headline": "$29 Oil Change",
+      "body": "This month only at Miller's Garage.",
+      "firstSeen": "2026-08-05",
+      "landingUrl": "https://millersgarage.example",
+      "sourceUrl": "https://www.facebook.com/ads/library/?id=mm1"
+    }
+  ],
+  "facebookProfile": {
+    "url": "https://www.facebook.com/millersgaragetoledo",
+    "status": "confirmed",
+    "handle": "millersgaragetoledo",
+    "title": "Miller's Garage",
+    "aboutText": "Miller's Garage - full-service auto repair in Toledo since 2003. Brakes, oil changes, diagnostics, tires. Open Mon-Fri 8-5:30. Free written estimates on every job.",
+    "hasProfileImage": true,
+    "hasCoverImage": true,
+    "followers": 410,
+    "postsPerWeek": 3.1,
+    "observedWindowDays": 30,
+    "posts": [
+      {
+        "date": "2026-08-27",
+        "caption": "5 signs your brakes need attention. #carcare #autorepair",
+        "media": "stock",
+        "likes": 2,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-25",
+        "caption": "Happy Friday from all of us!",
+        "media": "stock",
+        "likes": 4,
+        "comments": 1,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-22",
+        "caption": "Did you know? Your air filter should be changed every 15,000 miles.",
+        "media": "stock",
+        "likes": 1,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-20",
+        "caption": "5 signs your brakes need attention. #carcare #autorepair",
+        "media": "stock",
+        "likes": 3,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-18",
+        "caption": "Summer maintenance checklist for your vehicle.",
+        "media": "stock",
+        "likes": 2,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-15",
+        "caption": "Top 10 road trip essentials every driver needs.",
+        "media": "stock",
+        "likes": 1,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-11",
+        "caption": "Tire rotation: how often is often enough?",
+        "media": "stock",
+        "likes": 5,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-08",
+        "caption": "Check engine light on? Here's what it could mean.",
+        "media": "stock",
+        "likes": 2,
+        "comments": 1,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-04",
+        "caption": "Wishing everyone a safe holiday weekend!",
+        "media": "stock",
+        "likes": 3,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-01",
+        "caption": "How to tell if your alternator is failing.",
+        "media": "stock",
+        "likes": 2,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      }
+    ]
+  }
+}

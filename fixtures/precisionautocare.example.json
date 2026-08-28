@@ -1,0 +1,283 @@
+{
+  "domain": "precisionautocare.example",
+  "_comment": "Demo fixture: a strong shop. Used by `npm run seed` and the offline test suite.",
+  "pages": {
+    "/": "<!doctype html><html lang=\"en\"><head>\n<title>Precision Auto Care | Auto Repair in Austin, TX</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Family-owned auto repair in Austin since 1998. ASE-certified technicians, 3-year warranty, free shuttle.\">\n<script src=\"https://cdn.userway.org/widget.js\"></script><script>!function(f,b,e,v,n,t,s){}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1029384756');</script><script async src='https://www.googletagmanager.com/gtag/js?id=AW-123456789'></script><script>gtag('config', 'AW-123456789');</script>\n</head><body>\n<header><img src=\"/img/logo.png\" alt=\"Precision Auto Care logo\"><nav><a href=\"/services/brake-repair\">Brake Repair</a><a href=\"/services/oil-change\">Oil Change</a><a href=\"/services/transmission\">Transmission</a><a href=\"/blog\">Blog</a><a href=\"/about\">About Us</a></nav><a href=\"tel:(512) 555-0142\">(512) 555-0142</a>\n<a href=\"/appointments\">Book an Appointment</a></header>\n<main><h1>Precision Auto Care</h1><h2>Our Services</h2><h2>Why Choose Us</h2>\n<p>Family-owned since 1998. Our ASE-certified team services every make and model with a 3-year, 36,000-mile warranty.</p>\n<address>1420 Burnet Road, Austin, TX 78756</address>\n<img src=\"/img/shop-front.jpg\" alt=\"Our Burnet Road shop\"><img src=\"/img/team-2026.jpg\" alt=\"The Precision Auto Care team\"><img src=\"/img/bay-3.jpg\" alt=\"Technician performing a brake job\"><img src=\"/img/waiting-room.jpg\" alt=\"Customer waiting area\"><img src=\"/img/logo.png\" alt=\"Precision Auto Care logo\">\n<a href=\"/contact\">Contact Us</a>\n<a href=\"/appointments\">Schedule Service</a>\n</main>\n<footer><a href=\"https://www.facebook.com/precisionautocareatx\">Facebook</a><a href=\"https://www.instagram.com/precisionautocareatx\">Instagram</a><p>Precision Auto Care \u2014 1420 Burnet Road, Austin, TX 78756 \u2014 (512) 555-0142</p></footer>\n</body></html>",
+    "/services/brake-repair": "<!doctype html><html lang=\"en\"><head><title>Brake Repair</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Brake Repair performed by ASE-certified technicians. Same-day service available.\">\n</head><body><h1>Brake Repair</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/brake-repair.jpg\" alt=\"Brake Repair in progress\">\n<p>Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts.</p><a href=\"/services/oil-change\">Oil Change</a><a href=\"/blog\">Blog</a><a href=\"/contact\">Contact</a><a href=\"https://www.ase.com\">ASE certification</a></body></html>",
+    "/services/oil-change": "<!doctype html><html lang=\"en\"><head><title>Oil Change</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Oil Change performed by ASE-certified technicians. Same-day service available.\">\n</head><body><h1>Oil Change</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/oil-change.jpg\" alt=\"Oil Change in progress\">\n<p>Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts.</p><a href=\"/services/brake-repair\">Brake Repair</a><a href=\"/blog\">Blog</a><a href=\"/appointments\">Book</a></body></html>",
+    "/services/transmission": "<!doctype html><html lang=\"en\"><head><title>Transmission Service</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Transmission Service performed by ASE-certified technicians. Same-day service available.\">\n</head><body><h1>Transmission Service</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/transmission-service.jpg\" alt=\"Transmission Service in progress\">\n<p>Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts.</p><a href=\"/services/brake-repair\">Brakes</a><a href=\"/contact\">Contact</a><a href=\"/appointments\">Book</a></body></html>",
+    "/blog": "<!doctype html><html lang=\"en\"><head><title>Blog</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Car care tips, maintenance advice and shop news from our team.\">\n</head><body><h1>Blog</h1><h2>Latest posts</h2><h2>Categories</h2><article><h2><a href=\"/blog/0\">Why your brakes squeal in the rain</a></h2><time datetime=\"2026-08-18\">2026-08-18</time></article><article><h2><a href=\"/blog/1\">Do you really need a 3,000-mile oil change?</a></h2><time datetime=\"2026-08-04\">2026-08-04</time></article><article><h2><a href=\"/blog/2\">Reading your check-engine light</a></h2><time datetime=\"2026-07-21\">2026-07-21</time></article><article><h2><a href=\"/blog/3\">Summer road-trip checklist</a></h2><time datetime=\"2026-07-07\">2026-07-07</time></article></body></html>"
+  },
+  "pagespeed": {
+    "mobile": 87,
+    "desktop": 96
+  },
+  "places": [
+    {
+      "placeId": "gp_precision",
+      "name": "Precision Auto Care",
+      "formattedAddress": "1420 Burnet Rd, Austin, TX 78756, USA",
+      "phone": "+1 512-555-0142",
+      "website": "https://precisionautocare.example",
+      "rating": 4.8,
+      "reviewCount": 412,
+      "mapsUrl": "https://maps.google.com/?cid=1111",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 64,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-26T15:02:00Z",
+      "editorialSummary": "Family-owned auto repair shop offering brakes, diagnostics and scheduled maintenance."
+    },
+    {
+      "placeId": "gp_c1",
+      "name": "Burnet Road Automotive",
+      "formattedAddress": "2100 Burnet Rd, Austin, TX",
+      "phone": "+1 512-555-0199",
+      "website": "https://burnetroadauto.example",
+      "rating": 4.4,
+      "reviewCount": 188,
+      "mapsUrl": "https://maps.google.com/?cid=2",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 20,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-20T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_c2",
+      "name": "Allandale Auto Service",
+      "formattedAddress": "5400 Shoal Creek Blvd, Austin, TX",
+      "phone": "+1 512-555-0177",
+      "website": null,
+      "rating": 4.6,
+      "reviewCount": 301,
+      "mapsUrl": "https://maps.google.com/?cid=3",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 31,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-22T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_c3",
+      "name": "North Austin Tire & Lube",
+      "formattedAddress": "9000 Research Blvd, Austin, TX",
+      "phone": "+1 512-555-0155",
+      "website": null,
+      "rating": 4.1,
+      "reviewCount": 96,
+      "mapsUrl": "https://maps.google.com/?cid=4",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": false,
+      "photoCount": 0,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-07-30T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_c4",
+      "name": "Crestview Complete Car Care",
+      "formattedAddress": "7300 Lamar Blvd, Austin, TX",
+      "phone": "+1 512-555-0133",
+      "website": null,
+      "rating": 4.7,
+      "reviewCount": 244,
+      "mapsUrl": "https://maps.google.com/?cid=5",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 12,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-25T00:00:00Z",
+      "editorialSummary": null
+    }
+  ],
+  "citations": {
+    "scorePercent": 88,
+    "sources": [
+      {
+        "name": "BrightLocal citation audit",
+        "url": "https://www.brightlocal.com/",
+        "found": true,
+        "nameMatch": true,
+        "phoneMatch": true,
+        "addressMatch": true,
+        "note": "52 of 59 directories consistent."
+      }
+    ]
+  },
+  "googleAds": [
+    {
+      "id": "ga1",
+      "platform": "google",
+      "headline": "Brake Repair Austin | Free Inspection",
+      "body": "3-year warranty. Same-day service.",
+      "firstSeen": "2026-05-02",
+      "landingUrl": "https://precisionautocare.example/services/brake-repair",
+      "sourceUrl": "https://adstransparency.google.com/advertiser/AR01"
+    },
+    {
+      "id": "ga2",
+      "platform": "google",
+      "headline": "Oil Change Special $49",
+      "body": "Full synthetic. No appointment needed.",
+      "firstSeen": "2026-06-11",
+      "landingUrl": "https://precisionautocare.example/services/oil-change",
+      "sourceUrl": "https://adstransparency.google.com/advertiser/AR01"
+    },
+    {
+      "id": "ga3",
+      "platform": "google",
+      "headline": "Check Engine Light? We Diagnose Free",
+      "body": "ASE-certified technicians in Austin.",
+      "firstSeen": "2026-07-19",
+      "landingUrl": "https://precisionautocare.example/services/transmission",
+      "sourceUrl": "https://adstransparency.google.com/advertiser/AR01"
+    }
+  ],
+  "metaAds": [
+    {
+      "id": "ma1",
+      "platform": "meta",
+      "headline": "Austin's most-reviewed auto shop",
+      "body": "412 five-star reviews and counting.",
+      "firstSeen": "2026-07-01",
+      "landingUrl": "https://precisionautocare.example",
+      "sourceUrl": "https://www.facebook.com/ads/library/?id=ma1"
+    }
+  ],
+  "facebookProfile": {
+    "url": "https://www.facebook.com/precisionautocareatx",
+    "status": "confirmed",
+    "handle": "precisionautocareatx",
+    "title": "Precision Auto Care",
+    "aboutText": "Family-owned auto repair in Austin since 1998. ASE-certified technicians. 3-year/36,000-mile warranty. Free shuttle service. Open Mon-Fri 7:30-6.",
+    "hasProfileImage": true,
+    "hasCoverImage": true,
+    "followers": 3120,
+    "postsPerWeek": 4.2,
+    "observedWindowDays": 30,
+    "posts": [
+      {
+        "date": "2026-08-26",
+        "caption": "Marcus just hit 15 years with us. Stop by and say congrats.",
+        "media": "original",
+        "likes": 86,
+        "comments": 14,
+        "businessReplied": true,
+        "url": "https://www.facebook.com/precisionautocareatx/posts/1"
+      },
+      {
+        "date": "2026-08-24",
+        "caption": "Brake job on a 2019 Tacoma - before and after.",
+        "media": "original",
+        "likes": 41,
+        "comments": 6,
+        "businessReplied": true,
+        "url": "https://www.facebook.com/precisionautocareatx/posts/2"
+      },
+      {
+        "date": "2026-08-21",
+        "caption": "Summer heat is hard on batteries. Free testing all week.",
+        "media": "original",
+        "likes": 29,
+        "comments": 3,
+        "businessReplied": true,
+        "url": "https://www.facebook.com/precisionautocareatx/posts/3"
+      },
+      {
+        "date": "2026-08-19",
+        "caption": "Thank you for 412 five-star reviews, Austin.",
+        "media": "original",
+        "likes": 112,
+        "comments": 22,
+        "businessReplied": true,
+        "url": "https://www.facebook.com/precisionautocareatx/posts/4"
+      },
+      {
+        "date": "2026-08-16",
+        "caption": "New alignment rack is in. Come see it.",
+        "media": "original",
+        "likes": 57,
+        "comments": 9,
+        "businessReplied": true,
+        "url": "https://www.facebook.com/precisionautocareatx/posts/5"
+      },
+      {
+        "date": "2026-08-12",
+        "caption": "Meet Dana, our new service advisor.",
+        "media": "original",
+        "likes": 73,
+        "comments": 11,
+        "businessReplied": true,
+        "url": "https://www.facebook.com/precisionautocareatx/posts/6"
+      }
+    ]
+  },
+  "instagramProfile": {
+    "url": "https://www.instagram.com/precisionautocareatx",
+    "status": "confirmed",
+    "handle": "precisionautocareatx",
+    "title": "Precision Auto Care",
+    "aboutText": "Austin auto repair since 1998. ASE-certified. Book online.",
+    "hasProfileImage": true,
+    "hasCoverImage": true,
+    "followers": 1840,
+    "postsPerWeek": 3.5,
+    "observedWindowDays": 30,
+    "posts": [
+      {
+        "date": "2026-08-25",
+        "caption": "Bay 3 on a Monday morning.",
+        "media": "original",
+        "likes": 64,
+        "comments": 4,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-22",
+        "caption": "Timing belt service, start to finish.",
+        "media": "original",
+        "likes": 38,
+        "comments": 2,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-18",
+        "caption": "Shop dog approves this alignment.",
+        "media": "original",
+        "likes": 142,
+        "comments": 19,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-15",
+        "caption": "Behind the scenes on a diagnostic.",
+        "media": "original",
+        "likes": 45,
+        "comments": 3,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-11",
+        "caption": "Our team at the Crestview street fair.",
+        "media": "original",
+        "likes": 97,
+        "comments": 8,
+        "businessReplied": true,
+        "url": null
+      }
+    ]
+  }
+}

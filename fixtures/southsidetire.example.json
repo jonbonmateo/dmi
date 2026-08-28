@@ -1,0 +1,157 @@
+{
+  "domain": "southsidetire.example",
+  "_comment": "Demo fixture: a weak shop. Lands red. Exercises the not-found and fail paths.",
+  "pages": {
+    "/": "<!doctype html><html><head>\n<title>Southside Tire</title>\n</head><body>\n<h1>Southside Tire &amp; Auto</h1>\n<p>Tires and auto repair. Call 704-555-0143.</p>\n<img src=\"https://images.pexels.com/photos/tire-shop-generic.jpg\">\n<img src=\"https://cdn.shutterstock.com/mechanic-stock-photo-2.jpg\">\n<img src=\"/placeholder.jpg\">\n</body></html>"
+  },
+  "pagespeed": {
+    "mobile": 31,
+    "desktop": 58
+  },
+  "places": [
+    {
+      "placeId": "gp_south",
+      "name": "Southside Tire & Auto",
+      "formattedAddress": "4410 South Blvd, Charlotte, NC 28209, USA",
+      "phone": "+1 704-555-0143",
+      "website": null,
+      "rating": 3.6,
+      "reviewCount": 22,
+      "mapsUrl": "https://maps.google.com/?cid=7001",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": false,
+      "hasPhotos": false,
+      "photoCount": 0,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-03-11T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_s1",
+      "name": "South Blvd Auto Repair",
+      "formattedAddress": "4800 South Blvd, Charlotte, NC",
+      "phone": "+1 704-555-0190",
+      "website": null,
+      "rating": 4.4,
+      "reviewCount": 210,
+      "mapsUrl": "https://maps.google.com/?cid=7002",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 22,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-20T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_s2",
+      "name": "Charlotte Complete Auto",
+      "formattedAddress": "2200 Park Rd, Charlotte, NC",
+      "phone": "+1 704-555-0170",
+      "website": null,
+      "rating": 4.6,
+      "reviewCount": 388,
+      "mapsUrl": "https://maps.google.com/?cid=7003",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 40,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-26T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_s3",
+      "name": "Queen City Tire",
+      "formattedAddress": "900 Tryon St, Charlotte, NC",
+      "phone": "+1 704-555-0180",
+      "website": null,
+      "rating": 4.2,
+      "reviewCount": 155,
+      "mapsUrl": "https://maps.google.com/?cid=7004",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 18,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-18T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_s4",
+      "name": "Dilworth Auto Service",
+      "formattedAddress": "1500 East Blvd, Charlotte, NC",
+      "phone": "+1 704-555-0160",
+      "website": null,
+      "rating": 4.8,
+      "reviewCount": 420,
+      "mapsUrl": "https://maps.google.com/?cid=7005",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 55,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-27T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_s5",
+      "name": "NoDa Car Care",
+      "formattedAddress": "3100 N Davidson St, Charlotte, NC",
+      "phone": "+1 704-555-0150",
+      "website": null,
+      "rating": 4.5,
+      "reviewCount": 190,
+      "mapsUrl": "https://maps.google.com/?cid=7006",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 25,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-24T00:00:00Z",
+      "editorialSummary": null
+    }
+  ],
+  "citations": {
+    "scorePercent": 21,
+    "sources": [
+      {
+        "name": "BrightLocal citation audit",
+        "url": "https://www.brightlocal.com/",
+        "found": true,
+        "nameMatch": false,
+        "phoneMatch": false,
+        "addressMatch": true,
+        "note": "Listed as 'Southside Tire Co' with a disconnected number on most directories."
+      }
+    ]
+  },
+  "googleAds": [],
+  "metaAds": [],
+  "facebookProfile": {
+    "url": null,
+    "status": "not_found",
+    "handle": null,
+    "title": null,
+    "aboutText": null,
+    "hasProfileImage": null,
+    "hasCoverImage": null,
+    "followers": null,
+    "postsPerWeek": null,
+    "observedWindowDays": null,
+    "posts": []
+  },
+  "instagramProfile": {
+    "url": null,
+    "status": "not_found",
+    "handle": null,
+    "title": null,
+    "aboutText": null,
+    "hasProfileImage": null,
+    "hasCoverImage": null,
+    "followers": null,
+    "postsPerWeek": null,
+    "observedWindowDays": null,
+    "posts": []
+  }
+}
