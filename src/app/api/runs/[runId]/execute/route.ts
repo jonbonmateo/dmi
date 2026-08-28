@@ -4,13 +4,14 @@
  * repeatedly (it is how a partially failed run is recovered).
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { runPipeline } from "@/lib/pipeline";
 import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-export async function POST(req: Request, { params }: { params: Promise<{ runId: string }> }) {
+async function handlePost(req: Request, { params }: { params: Promise<{ runId: string }> }) {
   // Inspections cost API quota and hit real third parties, so they are rate
   // limited harder than ordinary reads and closed to guests.
   const guard = await requireAuth(req, { roles: WRITE_ROLES, burstPerMinute: 10 });
@@ -33,5 +34,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ runId: 
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request, { params }: { params: Promise<{ runId: string }> }) {
+  try {
+    return await handlePost(req, { params });
+  } catch (e) {
+    return routeErrorResponse(e);
   }
 }

@@ -7,6 +7,7 @@
  * password-based account.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { z } from "zod";
 import { getStore } from "@/lib/storage";
 import { env } from "@/lib/env";
@@ -23,7 +24,7 @@ const Body = z.object({ email: z.string().min(3).max(254) });
 const GENERIC =
   "If that email address has an account, a reset link is on its way. It may take a minute to arrive.";
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   const ip = clientIp(req);
   // Same per-IP burst cap as login: this endpoint can send mail, so it must
   // not be hammerable into a spam cannon against arbitrary addresses.
@@ -64,4 +65,12 @@ export async function POST(req: Request) {
     // production — a convenience for local development and demos.
     devLink: result.devLink,
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

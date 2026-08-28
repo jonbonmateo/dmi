@@ -823,9 +823,14 @@ an unattended dialler.
   mid-step resumes from its last checkpoint rather than restarting, but a
   deployment that consistently runs long inspections should move to Pro (raise
   `maxDuration` to up to 300s) rather than relying on resumption every time.
-- **The local JSON store is single-process.** Writes are serialised in-process,
-  which is fine for development and the test suite and wrong for anything
-  concurrent. Use Supabase in production.
+- **The local JSON store is single-process, and cannot write at all on most
+  serverless hosts.** On Vercel the deployed filesystem is read-only outside
+  `/tmp`, so without Supabase configured, sign-up, sign-in and every
+  inspection fail — the app now surfaces this as a clear, actionable error
+  message (`ConfigurationError` in `src/lib/errors.ts`) instead of a bare
+  500, but the underlying fix is the same either way: connect Supabase (§3)
+  before relying on this in production. Locally, on a real filesystem, the
+  local store works fine for development and the test suite.
 - **No 2FA**, and no account-management screen — roles are assigned by order of
   creation (first user is admin) and changed in the database.
 - **No per-shop tenancy.** Every signed-in user sees every inspection. Fine for

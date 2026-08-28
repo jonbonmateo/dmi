@@ -8,6 +8,7 @@
  * normal sign-in already asks for.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { z } from "zod";
 import { getStore } from "@/lib/storage";
 import { checkPasswordStrength, hashPassword } from "@/lib/auth/password";
@@ -28,7 +29,7 @@ const REASON_MESSAGE: Record<string, string> = {
   expired: "That reset link has expired. Request a new one.",
 };
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   const ip = clientIp(req);
   // Tokens are 32 random bytes — guessing is infeasible — but this still
   // caps how fast someone can hammer the endpoint with garbage tokens.
@@ -70,4 +71,12 @@ export async function POST(req: Request) {
 
   log.info("password reset completed", { userId: user.id });
   return NextResponse.json({ ok: true, next: "/login" });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

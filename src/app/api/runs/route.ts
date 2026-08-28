@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { getStore } from "@/lib/storage";
 import { requireAuth } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 
-export async function GET(req: Request) {
+async function handleGet(req: Request) {
   const guard = await requireAuth(req, { readOnly: true });
   if (!guard.ok) return guard.response;
 
@@ -34,4 +35,12 @@ export async function GET(req: Request) {
       errors: r.errors.length,
     })),
   });
+}
+
+export async function GET(req: Request) {
+  try {
+    return await handleGet(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

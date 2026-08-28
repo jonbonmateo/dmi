@@ -7,13 +7,14 @@
  * resumes from its last completed step.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { drainQueue } from "@/lib/pipeline";
 import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-export async function GET(req: Request) {
+async function handleGet(req: Request) {
   if (env.cronSecret) {
     const auth = req.headers.get("authorization") ?? "";
     if (auth !== `Bearer ${env.cronSecret}`) {
@@ -22,4 +23,12 @@ export async function GET(req: Request) {
   }
   const result = await drainQueue();
   return NextResponse.json({ ok: true, ...result, at: new Date().toISOString() });
+}
+
+export async function GET(req: Request) {
+  try {
+    return await handleGet(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

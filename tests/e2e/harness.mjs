@@ -42,6 +42,37 @@ export async function startApp({ seed = true } = {}) {
 
   const env = {
     ...process.env,
+    // ---------------------------------------------------------------------
+    // CRITICAL: blank out every real credential, explicitly.
+    //
+    // `next start` loads `.env`/`.env.production*` from its cwd itself, on
+    // top of whatever env this spawn() call provides — Next's dotenv loader
+    // fills in any key that is not *already present* in process.env, even if
+    // the intent here was just "don't pass one along." A developer's real
+    // `.env` in this same project directory (Supabase creds, API keys) would
+    // otherwise leak straight into this throwaway server. Setting each key
+    // to "" here counts as "already present" to that loader, so the real
+    // values in `.env` are never read for this child process — the local
+    // JSON store and fixture-backed providers are used unconditionally, and
+    // nothing in this suite can ever write to a real database or call a real
+    // API, no matter what the developer's own `.env` happens to contain.
+    NEXT_PUBLIC_SUPABASE_URL: "",
+    SUPABASE_SERVICE_ROLE_KEY: "",
+    PAGESPEED_API_KEY: "",
+    GOOGLE_MAPS_API_KEY: "",
+    META_AD_LIBRARY_TOKEN: "",
+    GHL_API_KEY: "",
+    GHL_LOCATION_ID: "",
+    ZAPIER_TRACKING_WEBHOOK_URL: "",
+    ZAPIER_ADS_BUDGET_CARD_WEBHOOK_URL: "",
+    GOOGLE_OAUTH_CLIENT_ID: "",
+    GOOGLE_OAUTH_CLIENT_SECRET: "",
+    AUTH_ALLOWED_DOMAINS: "",
+    RESEND_API_KEY: "",
+    EMAIL_FROM: "",
+    DMI_INTAKE_SECRET: "",
+    CRON_SECRET: "",
+    // ---------------------------------------------------------------------
     PORT: String(port),
     NODE_ENV: "production",
     DMI_DATA_DIR: dataDir,

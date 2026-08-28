@@ -7,6 +7,7 @@
  * halfway through.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { z } from "zod";
 import { getStore } from "@/lib/storage";
 import { requireAuth } from "@/lib/auth/guard";
@@ -18,7 +19,7 @@ export const runtime = "nodejs";
 
 const Body = z.object({ mode: z.enum(["live", "mock"]) });
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   const guard = await requireAuth(req);
   if (!guard.ok) return guard.response;
   const { user, session } = guard.auth;
@@ -66,4 +67,12 @@ export async function POST(req: Request) {
     mode,
     next: user.onboardedAt ? "/" : "/onboarding",
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { getStore } from "@/lib/storage";
 import { requireAuth } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 
-export async function GET(req: Request) {
+async function handleGet(req: Request) {
   const guard = await requireAuth(req, { readOnly: true });
   if (!guard.ok) return guard.response;
   const url = new URL(req.url);
@@ -14,4 +15,12 @@ export async function GET(req: Request) {
     status: url.searchParams.get("status") ?? undefined,
   });
   return NextResponse.json({ items });
+}
+
+export async function GET(req: Request) {
+  try {
+    return await handleGet(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

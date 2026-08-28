@@ -7,6 +7,7 @@
  * has an account.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse, safeSideEffect } from "@/lib/api-wrap";
 import { z } from "zod";
 import { getStore } from "@/lib/storage";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
@@ -27,7 +28,7 @@ const GENERIC = "That email address and password do not match an account.";
 /** Cost-equivalent work for a missing account, so timing does not leak. */
 const DECOY_HASH = "scrypt$32768$8$1$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   const ip = clientIp(req);
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
@@ -84,8 +85,13 @@ export async function POST(req: Request) {
   });
   await store.createSession(session);
   await writeSessionCookies(session);
-  await recordAuthAttempt({ key: email, ip, success: true, reason: null });
-  await touchLogin(user);
+  // The account and the session are what matter — a failure recording the
+  // attempt or bumping last-login-at must not turn a real sign-in into an
+  // error response.
+  await safeSideEffect("record successful login attempt", () =>
+    recordAuthAttempt({ key: email, ip, success: true, reason: null }),
+  );
+  await safeSideEffect("touch last-login timestamp", () => touchLogin(user));
   log.info("sign-in", { userId: user.id, provider: "password" });
 
   return NextResponse.json({
@@ -94,6 +100,14 @@ export async function POST(req: Request) {
     next: "/mode",
     user: { id: user.id, email: user.email, name: user.name, role: user.role },
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }
 
 /** Exported for the signup route so both paths hash identically. */

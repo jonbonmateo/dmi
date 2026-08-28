@@ -14,6 +14,7 @@ import { findOrCreateGoogleUser, touchLogin } from "@/lib/auth/accounts";
 import { newSessionRecord, writeSessionCookies } from "@/lib/auth/session";
 import { clientIp, recordAuthAttempt } from "@/lib/auth/rate-limit";
 import { log } from "@/lib/logger";
+import { safeSideEffect } from "@/lib/api-wrap";
 
 export const runtime = "nodejs";
 
@@ -27,7 +28,7 @@ function sameString(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-export async function GET(req: Request) {
+async function handleGet(req: Request) {
   if (!googleConfigured()) return back("/login?error=google_not_configured");
 
   const url = new URL(req.url);
@@ -75,9 +76,23 @@ export async function GET(req: Request) {
   });
   await getStore().createSession(session);
   await writeSessionCookies(session);
-  await recordAuthAttempt({ key: result.profile.email, ip, success: true, reason: "google" });
-  await touchLogin(user);
+  // Same reasoning as the password login/signup routes: the session already
+  // exists, so bookkeeping that fails here must not strand the browser on an
+  // error page after a real, successful Google sign-in.
+  await safeSideEffect("record google sign-in attempt", () =>
+    recordAuthAttempt({ key: result.profile.email, ip, success: true, reason: "google" }),
+  );
+  await safeSideEffect("touch last-login timestamp", () => touchLogin(user));
   log.info("sign-in", { userId: user.id, provider: "google" });
 
   return back("/mode");
+}
+
+export async function GET(req: Request) {
+  try {
+    return await handleGet(req);
+  } catch (e) {
+    log.error("google callback failed", { error: e instanceof Error ? e.message : String(e) });
+    return back("/login?error=server_error");
+  }
 }

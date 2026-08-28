@@ -79,22 +79,33 @@ export function getReadiness(): Readiness {
       ],
       docsUrl: "https://developers.google.com/maps/documentation/places/web-service/overview",
     },
-    {
-      id: "supabase",
-      label: "Supabase — persistent database",
-      importance: "recommended",
-      ok: env.storageDriver === "supabase",
-      consequence:
-        "Records are written to a local JSON file instead of Postgres. That is fine on a laptop and wrong on Vercel, where the filesystem is ephemeral — inspections would disappear between deployments.",
-      envVars: ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
-      howTo: [
-        "Create a project at supabase.com.",
-        "SQL Editor → paste supabase/schema.sql from this repo → Run.",
-        "Project Settings → API → copy the Project URL and the service_role key.",
-        "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.",
-      ],
-      docsUrl: "https://supabase.com/docs",
-    },
+    (() => {
+      // On Vercel (and most serverless hosts) the deployed filesystem is
+      // read-only outside /tmp, so the local JSON store cannot write at all —
+      // not "data disappears between deploys" but "every signup and every
+      // inspection throws." That makes this REQUIRED there, not merely
+      // recommended. Locally, where the filesystem is real and persistent,
+      // the local store genuinely works, so it stays a recommendation.
+      const onServerlessHost = Boolean(process.env.VERCEL);
+      const ok = env.storageDriver === "supabase";
+      return {
+        id: "supabase",
+        label: "Supabase — persistent database",
+        importance: onServerlessHost && !ok ? "required" : "recommended",
+        ok,
+        consequence: onServerlessHost
+          ? "This host's filesystem is read-only outside /tmp, so the local JSON store's fallback cannot write at all — sign-up, sign-in and every inspection will fail with a database error until this is connected."
+          : "Records are written to a local JSON file instead of Postgres. That is fine on a laptop and wrong on Vercel or similar hosts, where the filesystem is read-only or ephemeral — nothing could be saved at all.",
+        envVars: ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
+        howTo: [
+          "Create a project at supabase.com.",
+          "SQL Editor → paste supabase/schema.sql from this repo → Run.",
+          "Project Settings → API → copy the Project URL and the service_role key.",
+          "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, then redeploy.",
+        ],
+        docsUrl: "https://supabase.com/docs",
+      } satisfies ReadinessCheck;
+    })(),
     {
       id: "pagespeed",
       label: "PageSpeed Insights API key",

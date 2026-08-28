@@ -7,6 +7,7 @@
  * mid-run, /api/cron picks it back up.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { IntakeSchema, intake } from "@/lib/intake";
 import { runPipeline } from "@/lib/pipeline";
 import { env } from "@/lib/env";
@@ -22,7 +23,7 @@ function authorised(req: Request): boolean {
   return header === env.intakeSecret || bearer === env.intakeSecret;
 }
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   if (!authorised(req)) {
     return NextResponse.json({ error: "unauthorised" }, { status: 401 });
   }
@@ -70,5 +71,13 @@ export async function POST(req: Request) {
     const message = e instanceof Error ? e.message : String(e);
     log.error("intake failed", { error: message });
     return NextResponse.json({ error: message }, { status: 400 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    return routeErrorResponse(e);
   }
 }

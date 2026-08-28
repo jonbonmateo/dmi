@@ -7,6 +7,7 @@
  * next to the override so the audit trail stays intact.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { getStore } from "@/lib/storage";
 import { totals } from "@/lib/scoring/rubric";
 import { refreshWeeklyStatus } from "@/lib/integrations/tracking";
@@ -15,7 +16,7 @@ import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ itemId: string }> }) {
+async function handlePatch(req: Request, { params }: { params: Promise<{ itemId: string }> }) {
   // Guests may read the queue but must not change anyone's score.
   const guard = await requireAuth(req, { roles: WRITE_ROLES });
   if (!guard.ok) return guard.response;
@@ -71,4 +72,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ itemId
   }
 
   return NextResponse.json({ item: updated, run: run ? { id: run.id, state: run.state, totalScore: run.totalScore, classification: run.classification } : null });
+}
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ itemId: string }> }) {
+  try {
+    return await handlePatch(req, { params });
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

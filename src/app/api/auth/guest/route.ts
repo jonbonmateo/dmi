@@ -5,6 +5,7 @@
  * attributable, are pinned to mock mode, and cannot write.
  */
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { getStore } from "@/lib/storage";
 import { newSessionRecord, writeSessionCookies } from "@/lib/auth/session";
 import { checkBurst, clientIp } from "@/lib/auth/rate-limit";
@@ -13,7 +14,7 @@ import { log } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   if (!guestsAllowed()) {
     return NextResponse.json({ error: "Guest access is disabled on this deployment." }, { status: 403 });
   }
@@ -43,4 +44,12 @@ export async function POST(req: Request) {
     user: { id: user.id, name: user.name, role: user.role },
     notice: "You are signed in as a guest. The app is pinned to mock mode and you cannot change saved data.",
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

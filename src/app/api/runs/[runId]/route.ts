@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { routeErrorResponse } from "@/lib/api-wrap";
 import { getStore } from "@/lib/storage";
 import { requireAuth } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 
-export async function GET(req: Request, { params }: { params: Promise<{ runId: string }> }) {
+async function handleGet(req: Request, { params }: { params: Promise<{ runId: string }> }) {
   const guard = await requireAuth(req, { readOnly: true });
   if (!guard.ok) return guard.response;
   const { runId } = await params;
@@ -18,4 +19,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ runId: s
     store.getBudgetCardByRun(runId),
   ]);
   return NextResponse.json({ run, prospect, reviewItems: reviews, trackingRow: tracking, budgetCard: card });
+}
+
+export async function GET(req: Request, { params }: { params: Promise<{ runId: string }> }) {
+  try {
+    return await handleGet(req, { params });
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }

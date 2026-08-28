@@ -17,6 +17,8 @@ import type {
   TrackingRow,
 } from "@/lib/types";
 import type { Store } from "./types";
+import { ConfigurationError } from "@/lib/errors";
+import { log } from "@/lib/logger";
 
 type Tables = {
   users: User[];
@@ -64,10 +66,29 @@ export class LocalStore implements Store {
   }
 
   private async write(t: Tables): Promise<void> {
-    await fs.mkdir(path.dirname(this.file), { recursive: true });
-    const tmp = `${this.file}.${process.pid}.tmp`;
-    await fs.writeFile(tmp, JSON.stringify(t, null, 2));
-    await fs.rename(tmp, this.file);
+    try {
+      await fs.mkdir(path.dirname(this.file), { recursive: true });
+      const tmp = `${this.file}.${process.pid}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(t, null, 2));
+      await fs.rename(tmp, this.file);
+    } catch (e) {
+      const code = (e as NodeJS.ErrnoException).code;
+      log.error("local store write failed", { file: this.file, code, error: e instanceof Error ? e.message : String(e) });
+      if (code === "EROFS" || code === "EACCES" || code === "ENOENT" || code === "EEXIST" || code === "ENOTDIR") {
+        // The single most common cause: this app is deployed to a serverless
+        // platform (Vercel, most likely) whose filesystem is read-only
+        // outside /tmp, and no database is configured, so the app fell back
+        // to writing a local JSON file that cannot actually be written.
+        throw new ConfigurationError(
+          "This deployment has no working database. It fell back to a local file store, but the " +
+            "server's filesystem will not accept writes here (a read-only or ephemeral filesystem, " +
+            "typical of serverless hosting) — nothing can be signed up, saved, or run until a real " +
+            "database is connected. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (see " +
+            "the Setup section of the README), then redeploy.",
+        );
+      }
+      throw e;
+    }
   }
 
   private mutate<T>(fn: (t: Tables) => T | Promise<T>): Promise<T> {

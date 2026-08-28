@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { routeErrorResponse, safeSideEffect } from "@/lib/api-wrap";
 import { z } from "zod";
 import { getStore } from "@/lib/storage";
 import { checkPasswordStrength } from "@/lib/auth/password";
@@ -16,7 +17,7 @@ const Body = z.object({
   name: z.string().max(120).optional(),
 });
 
-export async function POST(req: Request) {
+async function handlePost(req: Request) {
   if (!signupsAllowed()) {
     return NextResponse.json(
       { error: "Sign-up is closed on this deployment. Ask an admin to create your account." },
@@ -67,8 +68,13 @@ export async function POST(req: Request) {
   });
   await store.createSession(session);
   await writeSessionCookies(session);
-  await recordAuthAttempt({ key: email, ip, success: true, reason: "signup" });
-  await touchLogin(user);
+  // As in the login route: the account and session already exist at this
+  // point, so a hiccup recording the attempt or the login timestamp must not
+  // turn a successful signup into an error response for the person signing up.
+  await safeSideEffect("record signup attempt", () =>
+    recordAuthAttempt({ key: email, ip, success: true, reason: "signup" }),
+  );
+  await safeSideEffect("touch last-login timestamp", () => touchLogin(user));
   log.info("signup", { userId: user.id, role: user.role });
 
   return NextResponse.json({
@@ -76,4 +82,12 @@ export async function POST(req: Request) {
     next: "/mode",
     user: { id: user.id, email: user.email, name: user.name, role: user.role },
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    return routeErrorResponse(e);
+  }
 }
