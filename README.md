@@ -21,6 +21,9 @@ silent failure.
 [The phone criterion](#11-the-phone-criterion) · [Assumptions](#12-assumptions) ·
 [Limitations](#13-known-limitations)
 
+**Dedicated integration docs** — [GoHighLevel](docs/GOHIGHLEVEL.md) ·
+[Zapier](docs/ZAPIER.md)
+
 ## 1. What the solution does
 
 It replaces steps 2–10 of the current manual sequence:
@@ -253,44 +256,25 @@ set, `local` otherwise.
 
 ### GoHighLevel
 
-1. Settings → Custom Fields → create seven text fields on the Contact object
-   with exactly these keys (they are the constants in
-   `src/lib/integrations/gohighlevel.ts`):
-   `dmi_total_score`, `dmi_classification`, `dmi_report_link`,
-   `dmi_inspection_date`, `dmi_google_ads_budget`, `dmi_lsa_budget`,
-   `dmi_open_review_items`.
-2. Settings → Private Integrations → new token with scopes
-   `contacts.readonly`, `contacts.write`, `contacts/notes.write`. Copy it into
-   `GHL_API_KEY`.
-3. Copy the sub-account (location) id into `GHL_LOCATION_ID`.
+Quick version: create seven custom fields on the Contact object, create a
+Private Integration token with three scopes, copy your location ID, set
+`GHL_API_KEY` and `GHL_LOCATION_ID`, redeploy.
 
-Until both are set, the GHL step is a **dry run**: it composes the exact
-payloads and returns them in the run's publish record, so the wiring is
-reviewable before any credential exists.
+**Full reference, with the exact field keys, every API call DMI makes, the
+note format, contact-matching logic and troubleshooting: [docs/GOHIGHLEVEL.md](docs/GOHIGHLEVEL.md).**
+
+Until both credentials are set, the GHL step is a **dry run**: it composes
+the exact payloads and returns them in the run's publish record, so the
+wiring is reviewable before any credential exists.
 
 ### Zapier
 
-**Zap 1 — discovery call in, DMI started.**
-Trigger: GoHighLevel → *Appointment Created* (or your booking-form trigger).
-Action: Webhooks by Zapier → *POST* to `https://<your-app>/api/intake`,
-JSON payload, header `x-dmi-secret: <DMI_INTAKE_SECRET>`. Map: first name,
-last name, email, phone, company/shop name, website, calendar name, appointment
-start time, how-they-heard, what-they-dislike, contact id. Unrecognised fields
-are preserved in the prospect's `extra` object rather than dropped.
+Quick version: three Zaps — GoHighLevel appointment → `/api/intake` (this is
+how inspections start), and two optional outbound mirrors (the tracking
+spreadsheet, and an Ads Budget Card on whatever board the team uses).
 
-**Zap 2 — tracking spreadsheet mirror.**
-Trigger: Webhooks by Zapier → *Catch Hook*. Paste the hook URL into
-`ZAPIER_TRACKING_WEBHOOK_URL`. Action: Google Sheets → *Create or update
-spreadsheet row*, keyed on `row_id`. Incoming fields: `row_id`, `run_id`,
-`shop_name`, `contact_name`, `email`, `phone`, `website`, `discovery_call_at`,
-`inspection_date`, `dmi_score`, `classification`, `dmi_link`, `week_of`,
-`weekly_status`.
-
-**Zap 3 — Ads Budget Card.**
-Trigger: Catch Hook → `ZAPIER_ADS_BUDGET_CARD_WEBHOOK_URL`. Action: whatever
-board the team uses. Fields: `card_id`, `shop_name`, `google_ads_monthly_usd`,
-`local_services_monthly_usd`, `total_monthly_usd`, `dmi_link`, `dmi_score`,
-`classification`, `rationale`.
+**Full reference, with the complete field mapping for all three Zaps, the
+exact JSON payloads, idempotency behaviour and troubleshooting: [docs/ZAPIER.md](docs/ZAPIER.md).**
 
 Without Zaps 2 and 3 the tracking row and budget card still exist in Postgres
 and on the report; only the external mirror is skipped, and the report says so.
