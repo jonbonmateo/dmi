@@ -359,6 +359,73 @@ describe("tracking sheet", () => {
   });
 });
 
+describe("password reset", () => {
+  test("forgot -> dev link -> reset -> sign in with the new password", async () => {
+    const page = await newPage();
+    const addr = `ui-reset-${Date.now()}@example.test`;
+    await page.goto(`${app.base}/login`, { waitUntil: "networkidle" });
+    // Create the account first, through the real signup form.
+    await page.getByRole("button", { name: /create one|create account/i }).first().click().catch(() => {});
+    await page.fill("#email", addr);
+    await page.fill("#password", PASSWORD);
+    await Promise.all([
+      page.waitForURL(/\/mode/, { timeout: 20_000 }),
+      page.getByRole("button", { name: /create account/i }).click(),
+    ]);
+
+    // Sign out so the reset flow starts from a logged-out browser.
+    await page.goto(`${app.base}/login`, { waitUntil: "networkidle" }).catch(() => {});
+    await page.evaluate(() => fetch("/api/auth/logout", { method: "POST" }));
+
+    await page.goto(`${app.base}/login`, { waitUntil: "networkidle" });
+    await page.getByRole("link", { name: /forgot password/i }).click();
+    await page.waitForURL(/\/forgot-password/);
+    await page.fill("#email", addr);
+    await page.getByRole("button", { name: /send reset link/i }).click();
+    await page.waitForSelector("text=/check your email/i", { timeout: 15_000 });
+
+    // No email provider is configured for the test run, so the dev link is
+    // rendered directly on the page.
+    const devLink = await page.locator('a[href*="/reset-password?token="]').getAttribute("href");
+    assert.ok(devLink, "expected a dev-mode reset link on the confirmation screen");
+
+    await page.goto(devLink, { waitUntil: "networkidle" });
+    const newPassword = "granite kettle overpass jungle";
+    await page.fill("#password", newPassword);
+    await page.fill("#confirm", newPassword);
+    await page.getByRole("button", { name: /set new password/i }).click();
+    await page.waitForURL(/\/login/, { timeout: 15_000 });
+
+    // The old password must be dead; the new one must sign in.
+    await page.fill("#email", addr);
+    await page.fill("#password", PASSWORD);
+    await page.getByRole("button", { name: /^sign in$/i }).first().click();
+    await page.waitForSelector("text=/do not match an account/i", { timeout: 15_000 });
+
+    await page.fill("#password", newPassword);
+    await Promise.all([
+      page.waitForURL(/\/mode/, { timeout: 15_000 }),
+      page.getByRole("button", { name: /^sign in$/i }).first().click(),
+    ]);
+    // The deliberate old-password attempt above is a real 401, which Chromium
+    // surfaces as a "failed to load resource" console entry even though it is
+    // the correct, intended response — filter that one expected line out.
+    const unexpected = page.__errors.filter((e) => !/401 \(Unauthorized\)/.test(e));
+    assert.deepEqual(unexpected, []);
+    await page.context().close();
+  });
+
+  test("mismatched confirmation is caught before the request is sent", async () => {
+    const page = await newPage();
+    await page.goto(`${app.base}/reset-password?token=irrelevant-for-this-check`, { waitUntil: "networkidle" });
+    await page.fill("#password", "brake fluid ledger nine");
+    await page.fill("#confirm", "a different passphrase entirely");
+    await page.getByRole("button", { name: /set new password/i }).click();
+    assert.ok(await page.getByText(/do not match/i).isVisible());
+    await page.context().close();
+  });
+});
+
 describe("signing out", () => {
   test("sign out returns to login and the mode question comes back", async () => {
     const page = await newPage();

@@ -277,6 +277,19 @@ board the team uses. Fields: `card_id`, `shop_name`, `google_ads_monthly_usd`,
 Without Zaps 2 and 3 the tracking row and budget card still exist in Postgres
 and on the report; only the external mirror is skipped, and the report says so.
 
+### Password-reset email (optional)
+
+1. Create an account at [resend.com](https://resend.com) and verify a sending
+   domain (their shared onboarding domain works for testing without one).
+2. Create an API key → `RESEND_API_KEY`.
+3. Optionally set `EMAIL_FROM` to an address on your verified domain.
+
+Without this, forgot-password links are written to the server log instead of
+emailed — fine for a solo operator who can read the Vercel logs, wrong for a
+team. Do **not** set `DMI_DEV_RESET_LINKS` to work around this on a real
+deployment; that flag returns the link in the API response instead of the log,
+which is safe only on a private test instance (see §9).
+
 ### Google Sign-In (optional)
 
 1. Google Cloud Console → APIs &amp; Services → OAuth consent screen. Configure it
@@ -320,6 +333,8 @@ Every variable is optional; each one turns a component from mocked to live.
 | `GOOGLE_OAUTH_CLIENT_ID` + `GOOGLE_OAUTH_CLIENT_SECRET` | Google Sign-In | Button hidden; password and guest sign-in still work |
 | `AUTH_ALLOWED_DOMAINS` | Restrict sign-up to your domains | Any address may sign up |
 | `AUTH_ALLOW_GUEST` / `AUTH_ALLOW_SIGNUP` | Feature switches (`0` disables) | Both enabled |
+| `RESEND_API_KEY` / `EMAIL_FROM` | Sends password-reset emails | Reset links are written to the server log instead |
+| `DMI_DEV_RESET_LINKS` | Returns the reset link in the API response when no email provider is set | Off — **never enable on a real deployment**, see §9 |
 | `NEXT_PUBLIC_APP_URL` | Base for the DMI link, and the OAuth redirect | Defaults to `http://localhost:3000` |
 | `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` | Postgres store | Local JSON store in `.data/` |
 | `PAGESPEED_API_KEY` | Lighthouse scores | Live but rate-limited; fixture fallback |
@@ -410,7 +425,7 @@ npm run typecheck
 npm run lint
 ```
 
-### Unit tests (`tests/*.test.ts`) — 61 tests
+### Unit tests (`tests/*.test.ts`) — 66 tests
 
 Fast, offline, no server, no network. They cover:
 
@@ -434,7 +449,8 @@ Fast, offline, no server, no network. They cover:
   rejected rather than thrown, password-strength rules, session token signing
   and four kinds of tampering, guest TTLs, CSRF comparison, the persisted
   lockout (including that a success clears the streak and that lockouts are
-  per-identifier), and the burst bucket.
+  per-identifier), the burst bucket, and password-reset tokens (single-use,
+  hash-only storage, a new request retiring the previous link, and TTL).
 - **`tests/table.test.ts`** — numeric vs natural text sorting ("Shop 2" before
   "Shop 10"), empties sorting last in *both* directions, no mutation of the
   caller's array, the asc → desc → off click cycle, multi-term search that
@@ -453,7 +469,7 @@ exactly as a browser meets them. Each test client presents its own
 `X-Forwarded-For` so per-IP limits do not cross-contaminate — the limiter
 itself is exercised deliberately, from one client, in its own test.
 
-**`api.e2e.test.mjs`** — 22 tests over HTTP:
+**`api.e2e.test.mjs`** — 29 tests over HTTP:
 
 - anonymous callers get 401 on APIs and a redirect (preserving `?next=`) on
   pages; every security header is asserted by name
@@ -469,9 +485,13 @@ itself is exercised deliberately, from one client, in its own test.
   working immediately; a forged cookie is rejected
 - answering a review question moves the score by exactly one and records the
   *signed-in* user, ignoring a deliberately falsified `by` field
+- forgot-password returns an identical response for a real and a fake address;
+  the dev-link escape hatch round-trips end to end; a used or unknown token is
+  refused; a completed reset kills every other session on the account; a weak
+  new password is refused
 - the intake webhook still works unauthenticated and still collapses duplicates
 
-**`ui.e2e.test.mjs`** — 16 tests in real Chromium, asserting zero console errors
+**`ui.e2e.test.mjs`** — 18 tests in real Chromium, asserting zero console errors
 on every page it visits:
 
 - anonymous → `/login`; guest button works; a bad password shows the error
@@ -485,6 +505,9 @@ on every page it visits:
 - a report renders exactly 20 criteria and says it used mock data
 - answering a question by clicking raises the score on the dashboard
 - the tracking sheet filters by weekly status
+- the full forgot → dev link → reset → sign in with the new password journey,
+  clicked through the real forms, plus a client-side check that a mismatched
+  confirmation is caught before the request is even sent
 - sign-out returns to login and the session is gone
 
 Manual smoke test of the full loop:
@@ -521,6 +544,7 @@ npm run seed && npm run dev
 | Authentication | **Live** | Self-hosted: scrypt passwords, HMAC session cookies, CSRF, rate limiting — no external service |
 | Google Sign-In | **Live with credentials** | Button hidden when the OAuth client is not configured |
 | Guest sessions | **Live** | Real short-lived accounts, read-only, pinned to mock mode |
+| Password reset | **Live** | Token issuance/consumption is self-hosted; email delivery is live with `RESEND_API_KEY`, else logged server-side |
 | Supabase store | **Live with credentials** | Local JSON store otherwise |
 | Tracking row + weekly status | **Live** | In Postgres always; Sheet mirror needs the Zapier hook |
 | GoHighLevel sync | **Live with credentials** | Dry run otherwise, with payloads shown |
@@ -579,12 +603,32 @@ Revocation is immediate because the session record is consulted on every
 request. In production the app refuses to boot without `AUTH_SECRET` rather
 than falling back to a known development key.
 
+**Password reset.** A single-use, SHA-256-hashed token (only the hash is ever
+stored — mirroring how passwords themselves are never stored in the clear),
+one-hour expiry, and requesting a new link silently retires any earlier one.
+Completing a reset revokes every existing session on the account, so a
+password change is also an automatic sign-out-everywhere. `/api/auth/forgot`
+returns an identical message whether or not the address has an account — the
+same anti-enumeration shape as login.
+
+Sending the email itself is [Resend](https://resend.com) when `RESEND_API_KEY`
+is set, and a server-log line otherwise — the same optional-credential shape as
+every other integration in this app. The one place this integration is *not*
+allowed to degrade further: `/api/auth/forgot`'s response body must never
+contain the reset link by default, because that response goes to whoever
+*calls* the endpoint, not necessarily the account owner — returning it there
+would turn "forgot password" into an account-takeover oracle for any email
+address an attacker cares to guess. The escape hatch,
+`DMI_DEV_RESET_LINKS=1`, exists purely so the flow can be demoed and
+end-to-end tested with no mail provider, and it is documented as unsafe on
+anything but a private test instance.
+
 **Rate limiting**, in two layers, because they stop different things:
 
 | Layer | Scope | Behaviour |
 | --- | --- | --- |
 | Persisted lockout | per email **and** per IP, in the database | 5 failures in 15 minutes → lockout, doubling 1 → 30 min with each further failure. A success clears the streak. |
-| In-memory token bucket | per instance | 10 logins/min per IP, 5 signups/min, 5 guest sessions/min, 120 API calls/min per session, 10 inspections/min. |
+| In-memory token bucket | per instance | 10 logins/min per IP, 5 signups/min, 5 guest sessions/min, 5 forgot-password requests/min per IP, 10 reset attempts/min per IP, 120 API calls/min per session, 10 inspections/min. |
 
 Counting the email and the IP separately matters: one attacker must not be able
 to lock out every user by guessing at addresses, and one user's own mistakes
@@ -762,10 +806,6 @@ an unattended dialler.
 - **The local JSON store is single-process.** Writes are serialised in-process,
   which is fine for development and the test suite and wrong for anything
   concurrent. Use Supabase in production.
-- **No password reset.** No mail transport is configured, so a forgotten
-  password means an admin re-creates the account (or the user signs in with
-  Google at the same verified address, which links to the same account). Adding
-  reset means adding an email provider and a signed, single-use token.
 - **No 2FA**, and no account-management screen — roles are assigned by order of
   creation (first user is admin) and changed in the database.
 - **No per-shop tenancy.** Every signed-in user sees every inspection. Fine for

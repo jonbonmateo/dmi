@@ -7,7 +7,7 @@
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
-import type { AuthAttempt, Session, User } from "@/lib/auth/types";
+import type { AuthAttempt, PasswordReset, Session, User } from "@/lib/auth/types";
 import type {
   AdsBudgetCard,
   DmiRun,
@@ -95,6 +95,26 @@ const attemptFromRow = (r: any): AuthAttempt => ({
   success: r.success,
   reason: r.reason,
   at: r.at,
+});
+
+const resetToRow = (r: PasswordReset) => ({
+  id: r.id,
+  user_id: r.userId,
+  token_hash: r.tokenHash,
+  created_at: r.createdAt,
+  expires_at: r.expiresAt,
+  used_at: r.usedAt,
+  ip: r.ip,
+});
+
+const resetFromRow = (r: any): PasswordReset => ({
+  id: r.id,
+  userId: r.user_id,
+  tokenHash: r.token_hash,
+  createdAt: r.created_at,
+  expiresAt: r.expires_at,
+  usedAt: r.used_at,
+  ip: r.ip,
 });
 
 const prospectToRow = (p: Prospect) => ({
@@ -357,6 +377,35 @@ export class SupabaseStore implements Store {
       .order("at", { ascending: false })
       .limit(50);
     return (data ?? []).map(attemptFromRow);
+  }
+
+  /* --------------------------------------------------------- password reset */
+  async createPasswordReset(r: PasswordReset) {
+    const data = unwrap(
+      await this.db.from("dmi_password_resets").insert(resetToRow(r)).select().single(),
+    );
+    return resetFromRow(data);
+  }
+  async getPasswordResetByHash(tokenHash: string) {
+    const { data } = await this.db
+      .from("dmi_password_resets")
+      .select()
+      .eq("token_hash", tokenHash)
+      .maybeSingle();
+    return data ? resetFromRow(data) : null;
+  }
+  async markPasswordResetUsed(id: string) {
+    await this.db
+      .from("dmi_password_resets")
+      .update({ used_at: new Date().toISOString() })
+      .eq("id", id);
+  }
+  async invalidatePasswordResets(userId: string) {
+    await this.db
+      .from("dmi_password_resets")
+      .update({ used_at: new Date().toISOString() })
+      .eq("user_id", userId)
+      .is("used_at", null);
   }
 
   async upsertProspect(p: Prospect) {

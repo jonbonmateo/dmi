@@ -50,6 +50,10 @@ export async function startApp({ seed = true } = {}) {
     NEXT_PUBLIC_APP_URL: `http://localhost:${port}`,
     AUTH_ALLOW_GUEST: "1",
     AUTH_ALLOW_SIGNUP: "1",
+    // Safe here only because the e2e server is bound to localhost on a
+    // throwaway port for the life of one test run. Never set this on a real
+    // deployment — see the warning on env.devResetLinks.
+    DMI_DEV_RESET_LINKS: "1",
     // No provider credentials: live mode must be unavailable, which is one of
     // the things the suite asserts.
     DMI_FORCE_MOCK: "",

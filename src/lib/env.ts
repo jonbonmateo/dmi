@@ -55,6 +55,26 @@ export const env = {
   get googleClientSecret() {
     return str("GOOGLE_OAUTH_CLIENT_SECRET");
   },
+  get resendApiKey() {
+    return str("RESEND_API_KEY");
+  },
+  get emailFrom() {
+    return str("EMAIL_FROM") ?? "DMI <onboarding@resend.dev>";
+  },
+  /**
+   * Return password-reset links directly in the /api/auth/forgot response
+   * instead of only logging them, when no email provider is configured.
+   *
+   * OFF by default and must stay off on any deployment reachable by anyone
+   * other than trusted testers: the response goes to whoever *calls* the
+   * endpoint, not necessarily the account owner, so leaving this on would
+   * make "forgot password" an account-takeover oracle for any email address
+   * an attacker cares to guess. It exists only so the reset flow can be
+   * demoed and end-to-end tested without standing up a real mail provider.
+   */
+  get devResetLinks() {
+    return str("DMI_DEV_RESET_LINKS") === "1";
+  },
   /** Empty = any domain may sign in with Google. */
   get allowedEmailDomains(): string[] {
     const raw = str("AUTH_ALLOWED_DOMAINS");

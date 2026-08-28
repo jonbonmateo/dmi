@@ -174,6 +174,107 @@ describe("mode lifecycle", () => {
   });
 });
 
+describe("password reset", () => {
+  test("the response is identical whether or not the address exists", async () => {
+    const c = makeClient(app.base);
+    const known = `reset-known-${Date.now()}@example.test`;
+    await c.post("/api/auth/signup", { email: known, password: PASSWORD });
+    await c.post("/api/auth/logout", {});
+
+    const a = await c.post("/api/auth/forgot", { email: known });
+    const b = await c.post("/api/auth/forgot", { email: "definitely-nobody@example.test" });
+    assert.equal(a.status, 200);
+    assert.equal(b.status, 200);
+    assert.equal(a.data.message, b.data.message, "the response must not reveal whether the account exists");
+  });
+
+  test("the dev link is returned when no email provider is configured, and works end to end", async () => {
+    const c = makeClient(app.base);
+    const email = `reset-flow-${Date.now()}@example.test`;
+    await c.post("/api/auth/signup", { email, password: PASSWORD });
+    await c.post("/api/auth/mode", { mode: "mock" });
+    await c.post("/api/auth/logout", {});
+
+    const req = await c.post("/api/auth/forgot", { email });
+    assert.equal(req.status, 200);
+    assert.ok(req.data.devLink, "no RESEND_API_KEY is configured for this test run, so a dev link must be returned");
+    const token = new URL(req.data.devLink).searchParams.get("token");
+    assert.ok(token);
+
+    const newPassword = "granite kettle overpass jungle";
+    const reset = await c.post("/api/auth/reset", { token, password: newPassword });
+    assert.equal(reset.status, 200);
+    assert.equal(reset.data.next, "/login");
+
+    // Old password no longer works; new password does.
+    const oldLogin = await c.post("/api/auth/login", { email, password: PASSWORD });
+    assert.equal(oldLogin.status, 401);
+    const newLogin = await c.post("/api/auth/login", { email, password: newPassword });
+    assert.equal(newLogin.status, 200);
+  });
+
+  test("a used token cannot be replayed", async () => {
+    const c = makeClient(app.base);
+    const email = `reset-replay-${Date.now()}@example.test`;
+    await c.post("/api/auth/signup", { email, password: PASSWORD });
+    await c.post("/api/auth/logout", {});
+
+    const req = await c.post("/api/auth/forgot", { email });
+    const token = new URL(req.data.devLink).searchParams.get("token");
+
+    const first = await c.post("/api/auth/reset", { token, password: "another good passphrase" });
+    assert.equal(first.status, 200);
+    const second = await c.post("/api/auth/reset", { token, password: "yet another passphrase" });
+    assert.equal(second.status, 400);
+    assert.match(second.data.error, /already been used/i);
+  });
+
+  test("resetting the password revokes every existing session", async () => {
+    const c = makeClient(app.base);
+    const email = `reset-revoke-${Date.now()}@example.test`;
+    await c.post("/api/auth/signup", { email, password: PASSWORD });
+    await c.post("/api/auth/mode", { mode: "mock" });
+    assert.equal((await c.get("/api/runs")).status, 200, "the session works before the reset");
+
+    // Request the reset from a *different* client so the session under test
+    // is never itself the one asking, mirroring a real forgotten-password flow.
+    const requester = makeClient(app.base);
+    const req = await requester.post("/api/auth/forgot", { email });
+    const token = new URL(req.data.devLink).searchParams.get("token");
+    await requester.post("/api/auth/reset", { token, password: "brand new passphrase nine" });
+
+    assert.equal((await c.get("/api/runs")).status, 401, "the old session must be dead after a reset");
+  });
+
+  test("a weak new password is refused", async () => {
+    const c = makeClient(app.base);
+    const email = `reset-weak-${Date.now()}@example.test`;
+    await c.post("/api/auth/signup", { email, password: PASSWORD });
+    await c.post("/api/auth/logout", {});
+    const req = await c.post("/api/auth/forgot", { email });
+    const token = new URL(req.data.devLink).searchParams.get("token");
+    const res = await c.post("/api/auth/reset", { token, password: "short" });
+    assert.equal(res.status, 400);
+    assert.ok(res.data.problems?.length > 0);
+  });
+
+  test("an unknown token is rejected with a clear message", async () => {
+    const c = makeClient(app.base);
+    const res = await c.post("/api/auth/reset", { token: "not-a-real-token-at-all", password: PASSWORD });
+    assert.equal(res.status, 400);
+    assert.match(res.data.error, /invalid/i);
+  });
+
+  test("the endpoints are reachable without a session", async () => {
+    const res = await fetch(`${app.base}/api/auth/forgot`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: "anonymous-caller@example.test" }),
+    });
+    assert.equal(res.status, 200);
+  });
+});
+
 describe("guests", () => {
   test("a guest is pinned to mock mode and cannot write", async () => {
     const c = makeClient(app.base);

@@ -145,3 +145,53 @@ test("email normalisation and validation", () => {
   assert.equal(validEmail("two@@shop.com"), false);
   assert.equal(validEmail(`${"a".repeat(250)}@shop.com`), false);
 });
+
+/* ---------------------------------------------------------- password reset */
+
+import { createPasswordReset, consumePasswordReset, hashToken } from "../src/lib/auth/reset";
+import { createPasswordUser } from "../src/lib/auth/accounts";
+
+test("a reset token consumes exactly once", async () => {
+  const user = await createPasswordUser({ email: "reset-once@example.test", password: "brake fluid ledger nine" });
+  const { token } = await createPasswordReset({ userId: user.id, ip: null });
+
+  const first = await consumePasswordReset(token);
+  assert.equal(first.ok, true);
+  if (first.ok) assert.equal(first.userId, user.id);
+
+  const second = await consumePasswordReset(token);
+  assert.equal(second.ok, false);
+  if (!second.ok) assert.equal(second.reason, "used");
+});
+
+test("an unknown token is rejected", async () => {
+  const outcome = await consumePasswordReset("this-token-was-never-issued");
+  assert.equal(outcome.ok, false);
+  if (!outcome.ok) assert.equal(outcome.reason, "not_found");
+});
+
+test("requesting a new reset link retires the previous one", async () => {
+  const user = await createPasswordUser({ email: "reset-retire@example.test", password: "brake fluid ledger nine" });
+  const first = await createPasswordReset({ userId: user.id, ip: null });
+  const second = await createPasswordReset({ userId: user.id, ip: null });
+
+  const stale = await consumePasswordReset(first.token);
+  assert.equal(stale.ok, false, "the earlier link must no longer work once a new one is issued");
+
+  const fresh = await consumePasswordReset(second.token);
+  assert.equal(fresh.ok, true);
+});
+
+test("only the token hash is ever stored, never the raw token", async () => {
+  const user = await createPasswordUser({ email: "reset-hash@example.test", password: "brake fluid ledger nine" });
+  const { token, record } = await createPasswordReset({ userId: user.id, ip: null });
+  assert.equal(record.tokenHash, hashToken(token));
+  assert.notEqual(record.tokenHash, token);
+});
+
+test("a reset token expires after its TTL", async () => {
+  const user = await createPasswordUser({ email: "reset-expiry@example.test", password: "brake fluid ledger nine" });
+  const { record } = await createPasswordReset({ userId: user.id, ip: null });
+  const ttlMs = Date.parse(record.expiresAt) - Date.parse(record.createdAt);
+  assert.ok(ttlMs > 0 && ttlMs <= 60 * 60_000 + 1000, `expected a ~1 hour TTL, got ${ttlMs}ms`);
+});

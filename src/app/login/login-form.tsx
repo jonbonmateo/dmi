@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/client/api";
 import { Button, Callout, Input } from "@/components/ui";
@@ -141,6 +142,13 @@ export function LoginForm({
             <p className="mt-1.5 text-xs text-[var(--color-muted)]">
               Length matters more than symbols. Three or four unrelated words beat
               &ldquo;P@ssw0rd!&rdquo;.
+            </p>
+          )}
+          {tab === "signin" && (
+            <p className="mt-1.5 text-right">
+              <Link href="/forgot-password" className="text-sm text-[var(--color-brand)] hover:underline">
+                Forgot password?
+              </Link>
             </p>
           )}
         </div>

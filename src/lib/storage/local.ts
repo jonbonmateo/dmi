@@ -8,7 +8,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { env } from "@/lib/env";
-import type { AuthAttempt, Session, User } from "@/lib/auth/types";
+import type { AuthAttempt, PasswordReset, Session, User } from "@/lib/auth/types";
 import type {
   AdsBudgetCard,
   DmiRun,
@@ -22,6 +22,7 @@ type Tables = {
   users: User[];
   sessions: Session[];
   auth_attempts: AuthAttempt[];
+  password_resets: PasswordReset[];
   prospects: Prospect[];
   runs: DmiRun[];
   review_items: ReviewItem[];
@@ -33,6 +34,7 @@ const EMPTY: Tables = {
   users: [],
   sessions: [],
   auth_attempts: [],
+  password_resets: [],
   prospects: [],
   runs: [],
   review_items: [],
@@ -144,6 +146,31 @@ export class LocalStore implements Store {
     return (await this.read()).auth_attempts.filter(
       (a) => a.key === key.toLowerCase() && a.at >= sinceIso,
     );
+  }
+
+  /* --------------------------------------------------------- password reset */
+  async createPasswordReset(r: PasswordReset) {
+    return this.mutate((t) => {
+      t.password_resets.push(r);
+      return r;
+    });
+  }
+  async getPasswordResetByHash(tokenHash: string) {
+    return (await this.read()).password_resets.find((r) => r.tokenHash === tokenHash) ?? null;
+  }
+  async markPasswordResetUsed(id: string) {
+    await this.mutate((t) => {
+      const r = t.password_resets.find((x) => x.id === id);
+      if (r) r.usedAt = new Date().toISOString();
+    });
+  }
+  async invalidatePasswordResets(userId: string) {
+    await this.mutate((t) => {
+      const now = new Date().toISOString();
+      for (const r of t.password_resets) {
+        if (r.userId === userId && !r.usedAt) r.usedAt = now;
+      }
+    });
   }
 
   async upsertProspect(p: Prospect) {

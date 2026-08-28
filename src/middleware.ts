@@ -15,6 +15,8 @@ const SESSION_COOKIE = "dmi_session";
 /** Reachable without signing in. */
 const PUBLIC_PATHS = [
   "/login",
+  "/forgot-password",
+  "/reset-password",
   "/api/auth/login",
   "/api/auth/signup",
   "/api/auth/guest",
@@ -22,6 +24,8 @@ const PUBLIC_PATHS = [
   "/api/auth/google/callback",
   "/api/auth/session",
   "/api/auth/logout",
+  "/api/auth/forgot",
+  "/api/auth/reset",
   "/api/health",
   // Machine-to-machine, authenticated by their own shared secrets.
   "/api/intake",

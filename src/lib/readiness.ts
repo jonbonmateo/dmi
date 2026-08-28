@@ -164,6 +164,21 @@ export function getReadiness(): Readiness {
       ],
     },
     {
+      id: "email",
+      label: "Email provider — password reset",
+      importance: "optional",
+      ok: Boolean(env.resendApiKey),
+      consequence:
+        "Password-reset links are written to the server log instead of emailed. Fine for development; a real deployment needs this so users can actually receive their reset link.",
+      envVars: ["RESEND_API_KEY", "EMAIL_FROM"],
+      howTo: [
+        "Create an account at resend.com and verify a sending domain (or use their shared onboarding domain for testing).",
+        "Create an API key and set it as RESEND_API_KEY.",
+        "Optionally set EMAIL_FROM to an address on your verified domain.",
+      ],
+      docsUrl: "https://resend.com/docs",
+    },
+    {
       id: "intake_secret",
       label: "Intake webhook secret",
       importance: "recommended",

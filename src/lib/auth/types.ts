@@ -45,6 +45,21 @@ export interface Session {
   revokedAt: string | null;
 }
 
+/**
+ * A single-use password-reset link. Only the SHA-256 hash of the token is
+ * stored, so a leaked database dump cannot be used to reset accounts — the
+ * same principle as never storing plaintext passwords.
+ */
+export interface PasswordReset {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
+  ip: string | null;
+}
+
 /** One record per credential attempt, for rate limiting and audit. */
 export interface AuthAttempt {
   id: string;

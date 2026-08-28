@@ -181,3 +181,24 @@ create or replace function dmi_prune_auth() returns void language sql as $$
   delete from dmi_sessions where expires_at < now() - interval '7 days';
   delete from dmi_auth_attempts where at < now() - interval '24 hours';
 $$;
+
+-- ------------------------------------------------------- password resets
+create table if not exists dmi_password_resets (
+  id         text primary key,
+  user_id    text not null references dmi_users(id) on delete cascade,
+  token_hash text not null unique,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null,
+  used_at    timestamptz,
+  ip         text
+);
+create index if not exists dmi_password_resets_user_idx on dmi_password_resets (user_id, used_at);
+
+alter table dmi_password_resets enable row level security;
+-- No permissive policies: only the service-role key may read reset tokens.
+
+create or replace function dmi_prune_auth() returns void language sql as $$
+  delete from dmi_sessions where expires_at < now() - interval '7 days';
+  delete from dmi_auth_attempts where at < now() - interval '24 hours';
+  delete from dmi_password_resets where expires_at < now() - interval '24 hours';
+$$;

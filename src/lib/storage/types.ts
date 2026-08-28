@@ -1,4 +1,4 @@
-import type { AuthAttempt, Session, User } from "@/lib/auth/types";
+import type { AuthAttempt, PasswordReset, Session, User } from "@/lib/auth/types";
 import type {
   AdsBudgetCard,
   DmiRun,
@@ -27,6 +27,13 @@ export interface Store {
   /* -------------------------------------------------------- rate limiting */
   addAuthAttempt(a: AuthAttempt): Promise<void>;
   recentAuthAttempts(key: string, sinceIso: string): Promise<AuthAttempt[]>;
+
+  /* --------------------------------------------------------- password reset */
+  createPasswordReset(r: PasswordReset): Promise<PasswordReset>;
+  getPasswordResetByHash(tokenHash: string): Promise<PasswordReset | null>;
+  markPasswordResetUsed(id: string): Promise<void>;
+  /** Retires every outstanding reset for a user without deleting the audit trail. */
+  invalidatePasswordResets(userId: string): Promise<void>;
 
   upsertProspect(p: Prospect): Promise<Prospect>;
   getProspect(id: string): Promise<Prospect | null>;
