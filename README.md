@@ -123,7 +123,7 @@ Discovery call booked in GoHighLevel
         ├─▶ /tracking    the spreadsheet view
         └─▶ /setup       what is connected, and how to connect the rest
                           ▲
-        Vercel Cron ─── GET /api/cron  (drains queued + stuck runs)
+        Vercel Cron ─── GET /api/cron  (drains queued + stuck runs, daily)
 ```
 
 **Next.js 16 (App Router) on Vercel** — the report, the review queue and the
@@ -226,12 +226,30 @@ set, `local` otherwise.
    Preview.
 3. Set `NEXT_PUBLIC_APP_URL` to the real deployment URL — the DMI link written
    into the tracking spreadsheet is built from it.
-4. `vercel.json` already registers the cron (`/api/cron` every 10 minutes).
-   Vercel injects `CRON_SECRET`; set the same value in the environment so the
-   endpoint rejects anything else.
-5. `/api/intake` and `/api/cron` declare `maxDuration = 300`. On Hobby the cap
-   is 60s — an inspection that exceeds it is resumed by the next cron tick
-   rather than lost, but Pro is the comfortable choice.
+4. `vercel.json` already registers the cron. It runs `/api/cron` once a day —
+   **the Hobby (free) plan only allows daily cron schedules**; anything more
+   frequent needs Pro. Vercel injects `CRON_SECRET`; set the same value in the
+   environment so the endpoint rejects anything else.
+
+   In practice this barely matters: every inspection already runs in the
+   background on the same request that queued it (`/api/intake` fires it and
+   returns immediately), so the cron is only a safety net for a run that
+   crashed or timed out mid-flight. A day's delay before that safety net
+   sweeps is fine for a handful of discovery calls a week. If you want faster
+   recovery without paying for Pro, point a free external scheduler — a
+   [GitHub Actions](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows#schedule)
+   workflow on a `cron:` trigger, or [cron-job.org](https://cron-job.org) —
+   at `GET https://<your-app>/api/cron` with an `Authorization: Bearer
+   <CRON_SECRET>` header, as often as you like; Vercel's limit is only on its
+   *own* Cron Jobs feature, not on who else is allowed to call the route.
+5. `/api/intake`, `/api/cron` and `/api/runs/:id/execute` declare
+   `maxDuration = 60` — the Hobby plan's hard ceiling (Vercel rejects a higher
+   value on Hobby at deploy time, the same way it rejected the cron
+   frequency). An inspection that runs long — many sampled pages, an unkeyed
+   PageSpeed call queued behind a rate limit — is checkpointed per step, so it
+   resumes from where it left off on the next call to `/api/runs/:id/execute`
+   or the next cron sweep rather than being lost. Upgrading to Pro raises the
+   ceiling to 300s if a deployment is consistently running long inspections.
 
 ### GoHighLevel
 
@@ -800,9 +818,11 @@ an unattended dialler.
   field and the report renders it; nothing populates it yet. It needs a headless
   browser plus Supabase Storage.
 - **Serverless duration.** A full inspection is roughly 10–60 seconds depending
-  on how many pages are sampled and whether PageSpeed runs live. On Vercel Hobby
-  (60s) a slow run can be cut short — it resumes on the next cron tick, but Pro
-  is the right choice for production.
+  on how many pages are sampled and whether PageSpeed runs live. `maxDuration`
+  is set to 60s to match the Hobby plan's hard limit; a run that gets cut off
+  mid-step resumes from its last checkpoint rather than restarting, but a
+  deployment that consistently runs long inspections should move to Pro (raise
+  `maxDuration` to up to 300s) rather than relying on resumption every time.
 - **The local JSON store is single-process.** Writes are serialised in-process,
   which is fine for development and the test suite and wrong for anything
   concurrent. Use Supabase in production.

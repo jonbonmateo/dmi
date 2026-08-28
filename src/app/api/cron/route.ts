@@ -11,7 +11,7 @@ import { drainQueue } from "@/lib/pipeline";
 import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 export async function GET(req: Request) {
   if (env.cronSecret) {

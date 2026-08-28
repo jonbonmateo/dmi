@@ -13,7 +13,7 @@ import { env } from "@/lib/env";
 import { log } from "@/lib/logger";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 function authorised(req: Request): boolean {
   if (!env.intakeSecret) return true; // unset = open, for local development

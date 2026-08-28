@@ -8,7 +8,7 @@ import { runPipeline } from "@/lib/pipeline";
 import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 export async function POST(req: Request, { params }: { params: Promise<{ runId: string }> }) {
   // Inspections cost API quota and hit real third parties, so they are rate
