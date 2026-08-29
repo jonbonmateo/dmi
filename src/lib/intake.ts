@@ -141,7 +141,10 @@ export interface IntakeResult {
   missing: string[];
 }
 
-export async function intake(raw: IntakePayload): Promise<IntakeResult> {
+export async function intake(
+  raw: IntakePayload,
+  opts: { forceNew?: boolean } = {},
+): Promise<IntakeResult> {
   const store = getStore();
   const { prospect: fields, missing } = normaliseIntake(raw);
 
@@ -152,7 +155,12 @@ export async function intake(raw: IntakePayload): Promise<IntakeResult> {
   }
 
   const key = idempotencyKeyFor(fields);
-  const existingRun = await store.findRunByIdempotencyKey(key);
+  // The Zapier webhook needs same-day collapsing so a retried notification
+  // never creates two runs for one discovery call. A person clicking
+  // "Inspect" on the dashboard wants the opposite: every click is a fresh,
+  // deliberate request for a new inspection right now, even re-testing the
+  // same shop and site on the same day — so that entry point opts out.
+  const existingRun = opts.forceNew ? null : await store.findRunByIdempotencyKey(key);
   if (existingRun) {
     const p = await store.getProspect(existingRun.prospectId);
     log.info("duplicate intake collapsed onto existing run", { run: existingRun.id, key });
@@ -166,11 +174,17 @@ export async function intake(raw: IntakePayload): Promise<IntakeResult> {
   await store.upsertProspect(prospect);
 
   const now = new Date().toISOString();
+  const runId = newId("dmi");
   const run: DmiRun = {
-    id: newId("dmi"),
+    id: runId,
     prospectId: prospect.id,
     state: "queued",
-    idempotencyKey: key,
+    // idempotency_key is unique in the database, so a forced-new run (which
+    // deliberately skips the lookup above) needs its own distinct key rather
+    // than colliding with whatever run already holds the "bare" key — the
+    // run's own id already makes this unique, and the readable prefix keeps
+    // it grep-able back to the same shop+site+day if that's ever useful.
+    idempotencyKey: opts.forceNew ? `${key}|${runId}` : key,
     inspectionDate: now.slice(0, 10),
     mode: currentMode(),
     verification: null,

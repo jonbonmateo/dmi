@@ -82,8 +82,15 @@ async function handlePost(req: Request) {
   // run's mode is not simply inherited from the session; every other entry
   // point (seed script, intake webhook under DMI_FORCE_MOCK, this session's
   // own mode banner) is unaffected.
+  //
+  // forceNew: true for the same reason — without it, re-testing the same
+  // shop/site on the same day would silently collapse onto whatever run
+  // already existed for it (same-day dedup exists for the Zapier webhook's
+  // retries, not for a person deliberately clicking Inspect again), which
+  // looked exactly like "Inspect is still giving me the old mock report"
+  // even after this endpoint started forcing live mode on new runs.
   const result = await withMode("live", () =>
-    intake({ shopName: parsed.data.shopName, website: parsed.data.website }),
+    intake({ shopName: parsed.data.shopName, website: parsed.data.website }, { forceNew: true }),
   );
 
   if (!result.duplicate) {

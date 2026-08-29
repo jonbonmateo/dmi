@@ -486,7 +486,10 @@ describe("starting an inspection from the dashboard", () => {
     assert.ok(runs.data.runs.some((r) => r.id === res.data.runId), "the new run must appear in the list immediately");
   });
 
-  test("starting the same shop twice returns the existing run instead of a second one", async () => {
+  test("starting the same shop twice from the dashboard creates two separate runs", async () => {
+    // Unlike the Zapier webhook (below), which collapses same-day retries of
+    // the same shop onto one run on purpose, a person clicking Inspect twice
+    // wants two fresh inspections — e.g. re-testing a site they just fixed.
     const c = makeClient(app.base);
     await c.post("/api/auth/signup", { email: `dash-dup-${Date.now()}@example.test`, password: PASSWORD });
     await c.post("/api/auth/mode", { mode: "mock" });
@@ -494,9 +497,10 @@ describe("starting an inspection from the dashboard", () => {
     const a = await c.post("/api/runs", { shopName: "Dashboard Duplicate Shop" });
     const b = await c.post("/api/runs", { shopName: "Dashboard Duplicate Shop" });
     assert.equal(a.status, 202);
-    assert.equal(b.status, 200);
-    assert.equal(b.data.duplicate, true);
-    assert.equal(a.data.runId, b.data.runId);
+    assert.equal(b.status, 202);
+    assert.equal(a.data.duplicate, false);
+    assert.equal(b.data.duplicate, false);
+    assert.notEqual(a.data.runId, b.data.runId);
   });
 
   test("a blank shop name is rejected", async () => {

@@ -30,12 +30,11 @@
   --color-brand-accent: #80bc00;
   --color-focus: #1449c9;
 
-  /* Primary/success buttons: green fill, off-white text — light mode only.
-     Note: #eaeef1 on #80bc00 is ~1.97:1 contrast, under WCAG AA's 4.5:1
-     minimum for button text. Requested explicitly; flagging so it's a known
-     trade-off rather than an oversight. */
-  --color-btn-primary-bg: #80bc00;
-  --color-btn-primary-bg-hover: #6ea300;
+  /* Primary/success buttons: navy fill, off-white text — the original
+     brand look. (Briefly green-on-off-white per an earlier request, then
+     reverted back to navy.) */
+  --color-btn-primary-bg: #012971;
+  --color-btn-primary-bg-hover: #0a3f9e;
   --color-btn-primary-fg: #eaeef1;
   --color-btn-success-fg: #eaeef1;
 
