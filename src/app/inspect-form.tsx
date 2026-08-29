@@ -13,11 +13,14 @@ interface StartRunResponse {
 }
 
 /**
- * The dashboard's "Inspect" action. Kicks off a real run through
- * POST /api/runs (session-authenticated, mode-aware — see that route for
- * why it's a separate endpoint from the Zapier-facing /api/intake) and
- * jumps straight to the new report, which shows its own live progress
- * while the pipeline runs.
+ * The dashboard's "Inspect" action. Kicks off a run through POST /api/runs
+ * (session-authenticated — see that route for why it's a separate endpoint
+ * from the Zapier-facing /api/intake) and jumps straight to the new report,
+ * which shows its own live progress while the pipeline runs.
+ *
+ * Always runs live, regardless of the session's own mode — typing a real URL
+ * in here and hitting Inspect is expected to crawl that real site, every
+ * time, even in a mock or guest session.
  */
 export function InspectForm() {
   const router = useRouter();
@@ -82,6 +85,10 @@ export function InspectForm() {
           {busy ? "Starting…" : "Inspect"}
         </Button>
       </form>
+      <p className="mt-2.5 text-xs text-[var(--color-muted)]">
+        Always runs live — a real crawl of this website and real API calls — no matter which mode this
+        session is in.
+      </p>
       {error && <p className="mt-2.5 text-sm font-medium text-[var(--color-red)]">{error}</p>}
     </Card>
   );

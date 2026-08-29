@@ -75,12 +75,14 @@ async function handlePost(req: Request) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request." }, { status: 400 });
   }
 
-  // The session's chosen mode has to be threaded through explicitly here:
-  // intake() stamps whatever currentMode() resolves to at creation time, and
-  // outside an explicit withMode() scope that defaults to "live". Without
-  // this, a mock-mode session clicking "Inspect" would silently kick off a
-  // real, live inspection instead of a fixture-backed one.
-  const result = await withMode(auth.mode, () =>
+  // Deliberately always "live" here, regardless of the session's own mode —
+  // per an explicit request: typing a real URL into this form and hitting
+  // Inspect should always crawl the real site and call the real APIs, even
+  // from a mock or guest session. This is the one place in the app where a
+  // run's mode is not simply inherited from the session; every other entry
+  // point (seed script, intake webhook under DMI_FORCE_MOCK, this session's
+  // own mode banner) is unaffected.
+  const result = await withMode("live", () =>
     intake({ shopName: parsed.data.shopName, website: parsed.data.website }),
   );
 

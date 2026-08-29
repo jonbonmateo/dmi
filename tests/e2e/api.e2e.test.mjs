@@ -480,7 +480,7 @@ describe("starting an inspection from the dashboard", () => {
     const res = await c.post("/api/runs", { shopName: "Dashboard Started Shop", website: "https://dashboardstarted.example" });
     assert.equal(res.status, 202);
     assert.ok(res.data.runId);
-    assert.equal(res.data.mode, "mock", "the run must inherit the session's chosen mode, not default to live");
+    assert.equal(res.data.mode, "live", "Inspect always runs live, regardless of the session's own mode");
 
     const runs = await c.get("/api/runs");
     assert.ok(runs.data.runs.some((r) => r.id === res.data.runId), "the new run must appear in the list immediately");
