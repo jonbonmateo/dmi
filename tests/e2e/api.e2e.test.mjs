@@ -449,3 +449,72 @@ describe("machine-to-machine endpoints", () => {
     assert.equal(a.runId, b.runId);
   });
 });
+
+describe("starting an inspection from the dashboard", () => {
+  test("a signed-in member can start one, and it shows up in the runs list", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email: `dash-${Date.now()}@example.test`, password: PASSWORD });
+    await c.post("/api/auth/mode", { mode: "mock" });
+
+    const res = await c.post("/api/runs", { shopName: "Dashboard Started Shop", website: "https://dashboardstarted.example" });
+    assert.equal(res.status, 202);
+    assert.ok(res.data.runId);
+    assert.equal(res.data.mode, "mock", "the run must inherit the session's chosen mode, not default to live");
+
+    const runs = await c.get("/api/runs");
+    assert.ok(runs.data.runs.some((r) => r.id === res.data.runId), "the new run must appear in the list immediately");
+  });
+
+  test("starting the same shop twice returns the existing run instead of a second one", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email: `dash-dup-${Date.now()}@example.test`, password: PASSWORD });
+    await c.post("/api/auth/mode", { mode: "mock" });
+
+    const a = await c.post("/api/runs", { shopName: "Dashboard Duplicate Shop" });
+    const b = await c.post("/api/runs", { shopName: "Dashboard Duplicate Shop" });
+    assert.equal(a.status, 202);
+    assert.equal(b.status, 200);
+    assert.equal(b.data.duplicate, true);
+    assert.equal(a.data.runId, b.data.runId);
+  });
+
+  test("a blank shop name is rejected", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email: `dash-blank-${Date.now()}@example.test`, password: PASSWORD });
+    await c.post("/api/auth/mode", { mode: "mock" });
+
+    const res = await c.post("/api/runs", { shopName: "  " });
+    assert.equal(res.status, 400);
+  });
+
+  test("a guest cannot start an inspection", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/guest", {});
+    const res = await c.post("/api/runs", { shopName: "Guest Attempt Shop" });
+    assert.equal(res.status, 403, "guests are read-only everywhere, this included");
+  });
+
+  test("a session with no mode chosen yet cannot start an inspection", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/signup", { email: `dash-nomode-${Date.now()}@example.test`, password: PASSWORD });
+    const res = await c.post("/api/runs", { shopName: "No Mode Yet Shop" });
+    assert.equal(res.status, 409);
+  });
+});
+
+describe("Admin Dev Setup access", () => {
+  test("a non-admin member is redirected away from /setup", async () => {
+    const c = makeClient(app.base);
+    // The very first account in a fresh store becomes admin (see
+    // roleForNewUser); every account after that is a plain member, so a
+    // second signup here reliably exercises the non-admin path.
+    await c.post("/api/auth/signup", { email: `nonadmin-${Date.now()}@example.test`, password: PASSWORD });
+    await c.post("/api/auth/mode", { mode: "mock" });
+    const res = await fetch(`${app.base}/setup`, {
+      headers: { cookie: [...c.jar.entries()].map(([k, v]) => `${k}=${v}`).join("; ") },
+      redirect: "manual",
+    });
+    assert.equal(res.status, 307);
+    assert.doesNotMatch(res.headers.get("location") ?? "", /\/setup/);
+  });
+});

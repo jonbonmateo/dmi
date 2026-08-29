@@ -12,7 +12,7 @@ directly; Zapier is what sits between them on the intake side.
 - [What it does *not* do](#what-it-does-not-do)
 - [Architecture](#architecture)
 - [Setup, step by step](#setup-step-by-step)
-- [The seven custom fields, in detail](#the-seven-custom-fields-in-detail)
+- [The ten custom fields, in detail](#the-ten-custom-fields-in-detail)
 - [The note that gets attached](#the-note-that-gets-attached)
 - [Contact matching logic](#contact-matching-logic)
 - [API calls DMI makes, exactly](#api-calls-dmi-makes-exactly)
@@ -32,7 +32,7 @@ directly; Zapier is what sits between them on the intake side.
 Once a Digital Marketing Inspection finishes, DMI writes two things back onto
 the prospect's GoHighLevel contact record:
 
-1. **Seven custom fields** — the score, the colour classification, a link to
+1. **Ten custom fields** — the score, the colour classification, a link to
    the full report, the inspection date, the two suggested ad budgets, and
    how many questions are still open for a human. A salesperson looking at
    the contact in GoHighLevel sees the outcome without leaving the CRM.
@@ -89,9 +89,9 @@ the other two.
 
 ## Setup, step by step
 
-### 1. Create the seven custom fields
+### 1. Create the ten custom fields
 
-In GoHighLevel: **Settings → Custom Fields → Contact**. Create seven fields,
+In GoHighLevel: **Settings → Custom Fields → Contact**. Create ten fields,
 all type **Text**, with **exactly** these field keys (not just similar
 labels — DMI writes to the field by key):
 
@@ -104,19 +104,29 @@ labels — DMI writes to the field by key):
 | `dmi_google_ads_budget` | Suggested Google Ads monthly budget, USD, no symbol | `1300` |
 | `dmi_lsa_budget` | Suggested Local Services Ads monthly budget, USD, no symbol | `950` |
 | `dmi_open_review_items` | Count of criteria still needing a human | `4` |
+| `dmi_meeting_type` | Meeting type from the Discovery Call Form | `Discovery Call` |
+| `dmi_heard_about_us` | How they heard about Shop Marketing Pros | `Referred by another shop owner` |
+| `dmi_marketing_pain_point` | What they currently dislike about their marketing | `We spend a lot on Google Ads but can't tell what's working.` |
 
 A field key in GoHighLevel is normally auto-generated from the field's
 display *name* the first time you save it (lowercased, spaces to
 underscores). The simplest way to get the key right is to name the field
 exactly `DMI Total Score`, `DMI Classification`, `DMI Report Link`, `DMI
-Inspection Date`, `DMI Google Ads Budget`, `DMI LSA Budget`, and `DMI Open
-Review Items` — GoHighLevel will generate `dmi_total_score` etc. automatically.
+Inspection Date`, `DMI Google Ads Budget`, `DMI LSA Budget`, `DMI Open Review
+Items`, `DMI Meeting Type`, `DMI Heard About Us`, and `DMI Marketing Pain
+Point` — GoHighLevel will generate `dmi_total_score` etc. automatically.
 After saving, open the field again and confirm the key shown matches the
 table above exactly; if your account has custom field key behavior that
 differs, edit the key directly to match.
 
 These fields can be created on any object level ("Contact" is what DMI
 targets), and it doesn't matter which folder/group you file them under.
+
+The rest of the Discovery Call Form — first name, last name, email, phone,
+shop name and website — doesn't need a custom field at all. Those map onto
+GoHighLevel's own native contact fields (First Name, Last Name, Email, Phone,
+Company Name, Website) and DMI keeps them in sync on every publish, same as
+the custom fields above.
 
 ### 2. Create a Private Integration token
 
@@ -158,14 +168,14 @@ Run an inspection (or use `npm run seed` locally with real credentials — see
   note" as connected.
 - The finished report's "Where this DMI was recorded" section shows
   `Confirmed` for both "GoHighLevel contact" and "GoHighLevel note", with a
-  note like *"Updated GoHighLevel contact loc_xxx with the DMI score, colour,
-  link and budgets."*
-- Open the contact in GoHighLevel and confirm the seven custom fields are
+  note like *"Updated GoHighLevel contact loc_xxx with the discovery call
+  details, DMI score, colour, link and budgets."*
+- Open the contact in GoHighLevel and confirm the ten custom fields are
   populated and a new note appears.
 
-## The seven custom fields, in detail
+## The ten custom fields, in detail
 
-All seven are written on **every** publish, including a re-run of a run that
+All ten are written on **every** publish, including a re-run of a run that
 already published once (DMI upserts by contact ID, so re-running an
 inspection just updates the same fields rather than creating duplicates).
 
@@ -200,6 +210,15 @@ empty string rather than a fabricated number.
 human to look at them (the same count shown as "N open" on the DMI dashboard
 and in the review queue). `0` means the DMI is fully resolved with no open
 questions.
+
+**`dmi_meeting_type`**, **`dmi_heard_about_us`** and
+**`dmi_marketing_pain_point`** — copied straight from the Discovery Call
+Form (meeting type, how they heard about Shop Marketing Pros, and what they
+currently dislike about their marketing). These are the three fields of the
+form GoHighLevel has no native contact field for; DMI writes them so step 3
+of the DMI process ("review the Discovery Call Form information... fill out
+the required GHL fields") happens automatically as part of the same publish
+that syncs the DMI results, rather than as a separate manual step.
 
 ## The note that gets attached
 
@@ -260,7 +279,7 @@ lookup order is:
 3. **If neither of the above resolves a contact**, DMI creates a brand new
    contact via `POST /contacts/`, populated with the prospect's first name,
    last name, email, phone, company name (the shop name), and website — plus
-   the seven custom fields — in one call.
+   the ten custom fields — in one call.
 
 Once a contact ID is resolved (found or created), it's saved back onto the
 prospect record (`prospect.ghlContactId`) so every future run for the same
@@ -350,7 +369,7 @@ report.
 | --- | --- |
 | The DMI report page, "Where this DMI was recorded" section | Status pill (Confirmed / Requires human review / Unable to evaluate) + a one-line explanation for both the contact update and the note |
 | `GET /api/runs/:id` | `publish.ghlContact` and `publish.ghlNote`, each `{status, id, note}` |
-| GoHighLevel contact record | The seven custom fields, and the note in the Notes tab |
+| GoHighLevel contact record | The ten custom fields, and the note in the Notes tab |
 | `/setup` page | Whether GoHighLevel is connected at all, at the deployment level |
 
 ## Troubleshooting
@@ -384,7 +403,7 @@ email lookup — see [ZAPIER.md](./ZAPIER.md#zap-1--discovery-call-in-dmi-starte
 
 **The custom fields show up blank in GoHighLevel.** Double-check the field
 *keys* match exactly (see the table in
-[step 1](#1-create-the-seven-custom-fields)) — GoHighLevel's API writes by
+[step 1](#1-create-the-ten-custom-fields)) — GoHighLevel's API writes by
 key, so a field with the right display name but a different underlying key
 will silently receive nothing while a genuinely empty field sits unfilled.
 Open each field's settings and compare the key shown there against the table

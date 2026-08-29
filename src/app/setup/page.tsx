@@ -13,6 +13,7 @@ export default async function SetupPage() {
   const auth = await getAuth();
   if (!auth) redirect("/login");
   if (!auth.mode) redirect("/mode");
+  if (auth.user.role !== "admin") redirect("/");
 
   const store = getStore();
   const open = await store.listReviewItems({ status: "open" });
@@ -21,7 +22,7 @@ export default async function SetupPage() {
   return (
     <AppShell auth={auth} active="setup" openReviews={open.length}>
       <header className="mb-7">
-        <h1 className="text-2xl font-bold tracking-tight">Setup &amp; connections</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Admin Dev Setup</h1>
         <p className="mt-1.5 max-w-2xl text-[15px] text-[var(--color-ink-soft)]">
           What this deployment is wired to, and exactly what happens when something is missing.
           Nothing here fails silently: an unconnected service degrades to a question in the review

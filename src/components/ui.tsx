@@ -253,3 +253,43 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
     </Card>
   );
 }
+
+/* ------------------------------------------------------------ preloaders */
+
+export function Spinner({ size = 20, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg
+      className={`animate-spin ${className}`}
+      style={{ width: size, height: size }}
+      viewBox="0 0 24 24"
+      fill="none"
+      role="status"
+      aria-label="Loading"
+    >
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.2" />
+      <path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * Full-section branded preloader — used by every route's `loading.tsx` so
+ * navigating between pages never shows a blank white flash while the server
+ * component fetches its data.
+ */
+export function PageLoader({ label = "Loading…" }: { label?: string }) {
+  return (
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 py-20">
+      <span
+        aria-hidden
+        className="relative grid h-12 w-12 place-items-center rounded-xl"
+        style={{ background: "var(--color-brand-soft)" }}
+      >
+        <Spinner size={24} className="text-[var(--color-brand)]" />
+      </span>
+      <p className="text-sm font-medium text-[var(--color-muted)]" role="status" aria-live="polite">
+        {label}
+      </p>
+    </div>
+  );
+}

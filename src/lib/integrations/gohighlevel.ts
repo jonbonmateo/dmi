@@ -29,6 +29,14 @@ export const GHL_FIELDS = {
   googleBudget: "dmi_google_ads_budget",
   lsaBudget: "dmi_lsa_budget",
   reviewCount: "dmi_open_review_items",
+  // The rest of the Discovery Call Form. First/last name, email, phone, shop
+  // name and website all map onto GoHighLevel's native contact fields (see
+  // buildContactFields below); GoHighLevel has no built-in field for these
+  // three, so they need their own custom fields, same as the DMI outcome
+  // fields above.
+  meetingType: "dmi_meeting_type",
+  heardAboutUs: "dmi_heard_about_us",
+  marketingPainPoint: "dmi_marketing_pain_point",
 } as const;
 
 export function buildNote(ctx: Ctx, openReviews: number): string {
@@ -96,14 +104,32 @@ export async function syncGhl(ctx: Ctx): Promise<{ contact: Outcome; note: Outco
     { key: GHL_FIELDS.googleBudget, field_value: g?.monthlyUsd === null || g?.monthlyUsd === undefined ? "" : String(g.monthlyUsd) },
     { key: GHL_FIELDS.lsaBudget, field_value: l?.monthlyUsd === null || l?.monthlyUsd === undefined ? "" : String(l.monthlyUsd) },
     { key: GHL_FIELDS.reviewCount, field_value: String(openReviews) },
+    // The rest of the Discovery Call Form that GoHighLevel has no native
+    // field for. Kept alongside the DMI outcome fields so step 3 of the DMI
+    // process ("complete the required information in the prospect's
+    // record") is satisfied by this same sync, not a separate manual step.
+    { key: GHL_FIELDS.meetingType, field_value: prospect.meetingType ?? "" },
+    { key: GHL_FIELDS.heardAboutUs, field_value: prospect.heardAboutUs ?? "" },
+    { key: GHL_FIELDS.marketingPainPoint, field_value: prospect.marketingPainPoint ?? "" },
   ];
+  // GoHighLevel's own native fields for the rest of the Discovery Call Form.
+  // Sent on both create and update — an existing contact found by email
+  // search may predate the discovery call and be missing shop/website/phone.
+  const nativeFields = {
+    firstName: prospect.firstName,
+    lastName: prospect.lastName,
+    email: prospect.email,
+    phone: prospect.phone,
+    companyName: prospect.shopName,
+    website: prospect.websiteUrl,
+  };
 
   if (!env.ghlApiKey || !env.ghlLocationId) {
     return {
       contact: {
         status: "requires_human_review",
         id: prospect.ghlContactId,
-        note: `GoHighLevel is not configured (GHL_API_KEY / GHL_LOCATION_ID missing). Would have set on contact ${prospect.ghlContactId ?? `(lookup by ${prospect.email})`}: ${customFields.map((f) => `${f.key}=${f.field_value || "(blank)"}`).join(", ")}`,
+        note: `GoHighLevel is not configured (GHL_API_KEY / GHL_LOCATION_ID missing). Would have set on contact ${prospect.ghlContactId ?? `(lookup by ${prospect.email})`}: ${Object.entries(nativeFields).map(([k, v]) => `${k}=${v || "(blank)"}`).join(", ")}, ${customFields.map((f) => `${f.key}=${f.field_value || "(blank)"}`).join(", ")}`,
       },
       note: {
         status: "requires_human_review",
@@ -125,22 +151,17 @@ export async function syncGhl(ctx: Ctx): Promise<{ contact: Outcome; note: Outco
   if (contactId) {
     const upd = await ghl(`/contacts/${contactId}`, {
       method: "PUT",
-      body: JSON.stringify({ customFields }),
+      body: JSON.stringify({ ...nativeFields, customFields }),
     });
     contactOutcome = upd.ok
-      ? { status: "confirmed", id: contactId, note: `Updated GoHighLevel contact ${contactId} with the DMI score, colour, link and budgets.` }
+      ? { status: "confirmed", id: contactId, note: `Updated GoHighLevel contact ${contactId} with the discovery call details, DMI score, colour, link and budgets.` }
       : { status: "unable_to_evaluate", id: contactId, note: `GoHighLevel returned HTTP ${upd.status} updating contact ${contactId}: ${JSON.stringify(upd.body).slice(0, 200)}` };
   } else {
     const created = await ghl(`/contacts/`, {
       method: "POST",
       body: JSON.stringify({
         locationId: env.ghlLocationId,
-        firstName: prospect.firstName,
-        lastName: prospect.lastName,
-        email: prospect.email,
-        phone: prospect.phone,
-        companyName: prospect.shopName,
-        website: prospect.websiteUrl,
+        ...nativeFields,
         customFields,
       }),
     });

@@ -4,6 +4,7 @@ import { getStore } from "@/lib/storage";
 import { AppShell } from "@/components/app-shell";
 import { Card, EmptyState } from "@/components/ui";
 import { RunsTable, type RunRow } from "./runs-table";
+import { InspectForm } from "./inspect-form";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,8 @@ export default async function Dashboard() {
           </p>
         </div>
       </header>
+
+      {auth.user.role !== "guest" && <InspectForm />}
 
       {rows.length === 0 ? (
         <EmptyState title="No inspections yet">

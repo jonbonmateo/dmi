@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getStore } from "@/lib/storage";
 import { getAuth } from "@/lib/auth/session";
 import { AppShell } from "@/components/app-shell";
+import { RunProgress } from "./run-progress";
 import { CLASSIFICATION_LABEL } from "@/lib/scoring/rubric";
 import { CATEGORY_LABELS } from "@/lib/types";
 import type { CategoryResult, Evidence, Finding } from "@/lib/types";
@@ -156,6 +157,8 @@ export default async function DmiReport({ params }: { params: Promise<{ runId: s
           Review queue ({open.length} open)
         </Link>
       </div>
+
+      <RunProgress runId={run.id} initialState={run.state} initialSteps={run.steps} />
 
       {run.mode === "mock" && (
         <div className="mb-6">

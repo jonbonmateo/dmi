@@ -137,7 +137,7 @@ describe("mode chooser", () => {
       page.waitForURL(/\/onboarding/, { timeout: 20_000 }),
       page.getByRole("button", { name: /start in mock mode/i }).click(),
     ]);
-    assert.ok(await page.getByRole("heading", { name: /what a dmi is/i }).isVisible());
+    await page.getByRole("heading", { name: /what a dmi is/i }).waitFor({ state: "visible", timeout: 20_000 });
     await page.context().close();
   });
 
@@ -163,6 +163,11 @@ describe("onboarding tour", () => {
       page.getByRole("button", { name: /start in mock mode/i }).click(),
     ]);
 
+    // The route's own preloader can still be on screen for a moment after
+    // waitForURL resolves — its fallback replaces real content, including
+    // the first "Next" button, until the tour's data has streamed in.
+    await page.getByRole("button", { name: /^next|get started/i }).first().waitFor({ state: "visible", timeout: 20_000 });
+
     let steps = 1;
     for (;;) {
       const next = page.getByRole("button", { name: /^next/i });
@@ -177,7 +182,7 @@ describe("onboarding tour", () => {
       page.waitForURL((u) => new URL(u).pathname === "/", { timeout: 20_000 }),
       page.getByRole("button", { name: /get started/i }).click(),
     ]);
-    assert.ok(await page.getByRole("heading", { name: /^inspections$/i }).isVisible());
+    await page.getByRole("heading", { name: /^inspections$/i }).waitFor({ state: "visible", timeout: 20_000 });
 
     // Having finished it once, sign-in should no longer force the tour.
     await page.goto(`${app.base}/`, { waitUntil: "networkidle" });
@@ -204,6 +209,9 @@ describe("dashboard table", () => {
   test("shows the seeded inspections and the mock banner", async () => {
     const page = await newPage();
     await intoApp(page);
+    // The dashboard's own preloader can still be showing right after
+    // waitForURL resolves, so wait for a real row before counting.
+    await page.waitForSelector("tbody tr", { timeout: 20_000 });
     const rows = await page.$$("tbody tr");
     assert.equal(rows.length, 5, "five seeded inspections");
     assert.ok(
@@ -274,6 +282,9 @@ describe("report and review", () => {
       page.getByRole("link", { name: /Precision Auto Care/i }).click(),
     ]);
 
+    // The report route's own preloader can still be showing right after
+    // waitForURL resolves, so wait for a real finding mark before reading.
+    await page.waitForSelector("section ul > li span[title]", { timeout: 20_000 });
     const marks = await page.$$eval("section ul > li span[title]", (els) =>
       els.map((e) => e.getAttribute("title")),
     );
