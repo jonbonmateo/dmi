@@ -205,7 +205,7 @@ describe("dashboard table", () => {
     const page = await newPage();
     await intoApp(page);
     const rows = await page.$$("tbody tr");
-    assert.equal(rows.length, 3, "three seeded inspections");
+    assert.equal(rows.length, 5, "five seeded inspections");
     assert.ok(
       await page.getByText(/every finding comes from bundled fixtures/i).isVisible(),
       "the mock banner must be unmissable",
@@ -240,10 +240,10 @@ describe("dashboard table", () => {
     await page.fill("#table-search", "miller");
     await page.waitForFunction(() => document.querySelectorAll("tbody tr").length === 1);
     assert.match(await page.textContent("tbody tr td:first-child"), /Miller/);
-    assert.ok(await page.getByText(/1 of 3/).isVisible());
+    assert.ok(await page.getByText(/1 of 5/).isVisible());
 
     await page.getByRole("button", { name: /clear filters/i }).click();
-    await page.waitForFunction(() => document.querySelectorAll("tbody tr").length === 3);
+    await page.waitForFunction(() => document.querySelectorAll("tbody tr").length === 5);
     await page.context().close();
   });
 

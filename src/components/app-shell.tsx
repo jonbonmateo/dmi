@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { AuthContext } from "@/lib/auth/types";
 import { ModeBadge } from "./ui";
 import { UserMenu } from "./user-menu";
+import { ThemeToggle } from "./theme-toggle";
 
 /**
  * The signed-in chrome: nav, the mode banner, and the user menu.
@@ -66,9 +67,13 @@ export function AppShell({
           <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight">
             <span
               aria-hidden
-              className="grid h-7 w-7 place-items-center rounded-md bg-[var(--color-brand)] text-[13px] font-bold text-white"
+              className="relative grid h-7 w-7 place-items-center overflow-hidden rounded-md bg-[var(--color-brand)] text-[13px] font-bold text-white"
             >
               D
+              <span
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-[3px] bg-[var(--color-brand-accent)]"
+              />
             </span>
             <span>DMI</span>
           </Link>
@@ -97,6 +102,7 @@ export function AppShell({
 
           <div className="ml-auto flex items-center gap-3">
             {mode && <ModeBadge mode={mode} />}
+            <ThemeToggle />
             <UserMenu
               name={auth.user.name ?? auth.user.email ?? "Account"}
               role={auth.user.role}

@@ -1,8 +1,15 @@
 /**
- * Loads three sample discovery calls and runs a full DMI on each, entirely
+ * Loads five sample discovery calls and runs a full DMI on each, entirely
  * offline. `DMI_FORCE_MOCK=1` makes every provider — including the web
  * crawler — read from fixtures/, so this works with no credentials and no
  * internet connection.
+ *
+ * The five samples deliberately cover different shapes of uncertainty, not
+ * just different scores: a clean single-location match, incomplete intake
+ * data, a shop with no social presence at all, a brand with three locations
+ * (exercises the multiple-locations flag), and a shop with no website at all
+ * (exercises the no-website path — SEO/ads/social still evaluate what they
+ * can from other signals).
  *
  *   npm run seed
  */
@@ -36,6 +43,25 @@ const SAMPLES = [
     shopName: "Southside Tire & Auto", website: "southsidetire.example",
     discoveryCallAt: "2026-09-04T14:00:00Z",
     marketingPainPoint: "Phone stopped ringing this year.",
+  },
+  {
+    // Three locations under one brand — exercises the multiple-locations
+    // review flag. The discovery call is about the Springfield (main) shop.
+    firstName: "Carlos", lastName: "Vega", email: "carlos@route9autogroup.example",
+    phone: "(413) 555-0161", shopName: "Route 9 Auto Group",
+    website: "https://route9autogroup.example",
+    meetingType: "Discovery Call", discoveryCallAt: "2026-09-05T16:00:00Z",
+    heardAboutUs: "Google search",
+    marketingPainPoint: "Not sure our marketing budget is being split right across our three shops.",
+  },
+  {
+    // No website at all — a very common real scenario. SEO/ads/social still
+    // evaluate what they can; only the website criteria fail outright.
+    firstName: "Deshawn", lastName: "Carter", email: "deshawn@quickfixautoshop.example",
+    phone: "(251) 555-0119", shopName: "Quick Fix Auto Shop",
+    meetingType: "Discovery Call", discoveryCallAt: "2026-09-08T13:00:00Z",
+    heardAboutUs: "Walked past a truck wrap",
+    marketingPainPoint: "We've never had a website — not sure if we even need one.",
   },
 ];
 

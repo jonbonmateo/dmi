@@ -184,13 +184,17 @@ Three structural decisions worth calling out:
 git clone <this repo> && cd dmi
 npm install
 cp .env.example .env.local     # every value is optional
-npm run seed                   # three sample DMIs, fully offline
+npm run seed                   # five sample DMIs, fully offline
 npm run dev                    # http://localhost:3000
 ```
 
-`npm run seed` needs no credentials and no internet. It loads three demo shops
-that land green, yellow and red, exercising the pass, fail and
-cannot-determine paths.
+`npm run seed` needs no credentials and no internet. It loads five demo shops
+covering distinct real-world shapes of uncertainty, not just different
+scores: a clean single-location match (green), a dated single-shop site
+(yellow), a shop with zero web/social presence at all (red), a three-location
+brand that exercises the multiple-locations review flag (yellow), and a shop
+with no website at all but a genuinely active Facebook/Instagram presence
+(red) — the classic "we only use Facebook" small-shop pattern.
 
 ### First sign-in
 

@@ -3,26 +3,32 @@
 /*
  * Design tokens.
  *
+ * Brand palette: navy (#012971), leaf green (#80bc00), off-white (#eaeef1).
+ * This is the DEFAULT theme for every visitor, regardless of their OS
+ * preference — dark mode is opt-in only, via the theme toggle button
+ * (see ThemeToggle / theme-init script in layout.tsx), never automatic.
+ *
  * Readability first: a 16px base, a 1.65 line height on body copy, and a
  * measure capped around 70 characters. Colour is used sparingly — the four
  * status colours have to stand out, so almost nothing else is allowed to.
  */
 @theme {
-  /* neutrals */
-  --color-canvas: #f7f8fa;
+  /* neutrals — off-white canvas, white cards, navy-tinted ink */
+  --color-canvas: #eaeef1;
   --color-surface: #ffffff;
-  --color-raised: #fbfcfd;
-  --color-line: #e4e8ed;
-  --color-line-strong: #ccd3db;
-  --color-ink: #131a22;
-  --color-ink-soft: #3d4956;
-  --color-muted: #67727f;
+  --color-raised: #f2f5f7;
+  --color-line: #dbe1e8;
+  --color-line-strong: #bcc7d2;
+  --color-ink: #012971;
+  --color-ink-soft: #24417a;
+  --color-muted: #56698a;
 
-  /* brand */
-  --color-brand: #1d4ed8;
-  --color-brand-hover: #1a44bb;
-  --color-brand-soft: #eef3ff;
-  --color-focus: #2563eb;
+  /* brand — navy primary, leaf-green accent */
+  --color-brand: #012971;
+  --color-brand-hover: #0a3f9e;
+  --color-brand-soft: #e5eaf5;
+  --color-brand-accent: #80bc00;
+  --color-focus: #1449c9;
 
   /* status */
   --color-red: #b3261e;
@@ -31,10 +37,10 @@
   --color-yellow: #8a5a00;
   --color-yellow-soft: #fdf4e3;
   --color-yellow-line: #eed9ac;
-  --color-green: #146c43;
-  --color-green-soft: #e7f5ed;
-  --color-green-line: #b7ddc7;
-  --color-grey-soft: #eef1f5;
+  --color-green: #4c6600;
+  --color-green-soft: #eef6da;
+  --color-green-line: #cfe3a0;
+  --color-grey-soft: #eceff3;
 
   /* mode banners */
   --color-mock: #6d3bd6;
@@ -49,47 +55,58 @@
   --shadow-pop: 0 4px 6px -1px rgb(16 24 40 / 0.08), 0 10px 20px -6px rgb(16 24 40 / 0.12);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-canvas: #0e1319;
-    --color-surface: #151c24;
-    --color-raised: #1a222c;
-    --color-line: #263140;
-    --color-line-strong: #38465a;
-    --color-ink: #e8edf3;
-    --color-ink-soft: #c2ccd8;
-    --color-muted: #8d9aaa;
+/*
+ * Dark mode — explicit opt-in only.
+ *
+ * There is deliberately no `@media (prefers-color-scheme: dark)` block: the
+ * brand light theme above is the default for every visitor no matter what
+ * their OS is set to. This block only takes effect once ThemeToggle (or the
+ * no-flash boot script in layout.tsx) stamps `data-theme="dark"` on <html>.
+ */
+:root[data-theme="dark"] {
+  --color-canvas: #050e1f;
+  --color-surface: #0b1b33;
+  --color-raised: #102544;
+  --color-line: #1c3355;
+  --color-line-strong: #2c4a72;
+  --color-ink: #e7ecf5;
+  --color-ink-soft: #b9c6da;
+  --color-muted: #8194b0;
 
-    --color-brand: #7ba3ff;
-    --color-brand-hover: #9dbaff;
-    --color-brand-soft: #17233c;
+  --color-brand: #6f93ff;
+  --color-brand-hover: #8fa9ff;
+  --color-brand-soft: #132a52;
+  --color-brand-accent: #80bc00;
+  --color-focus: #8fa9ff;
 
-    --color-red: #ff9d94;
-    --color-red-soft: #33191a;
-    --color-red-line: #5d2c2b;
-    --color-yellow: #f0c26a;
-    --color-yellow-soft: #2f2515;
-    --color-yellow-line: #56421f;
-    --color-green: #6fd39b;
-    --color-green-soft: #14291f;
-    --color-green-line: #26543b;
-    --color-grey-soft: #1f2833;
+  --color-red: #ff9d94;
+  --color-red-soft: #33191a;
+  --color-red-line: #5d2c2b;
+  --color-yellow: #f0c26a;
+  --color-yellow-soft: #2f2515;
+  --color-yellow-line: #56421f;
+  --color-green: #9ed82f;
+  --color-green-soft: #1b2a06;
+  --color-green-line: #33480d;
+  --color-grey-soft: #16233a;
 
-    --color-mock: #bfa2ff;
-    --color-mock-soft: #241b39;
-    --color-mock-line: #3d2f5c;
-    --color-live: #6ed6c5;
-    --color-live-soft: #102b28;
-    --color-live-line: #1f4f48;
+  --color-mock: #bfa2ff;
+  --color-mock-soft: #241b39;
+  --color-mock-line: #3d2f5c;
+  --color-live: #6ed6c5;
+  --color-live-soft: #102b28;
+  --color-live-line: #1f4f48;
 
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
-    --shadow-pop: 0 10px 24px -8px rgb(0 0 0 / 0.6);
-  }
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-pop: 0 10px 24px -8px rgb(0 0 0 / 0.6);
 }
 
 html {
-  color-scheme: light dark;
+  color-scheme: light;
   -webkit-text-size-adjust: 100%;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
@@ -101,6 +118,7 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 h1, h2, h3, h4 {

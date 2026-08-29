@@ -191,7 +191,10 @@ export function Button({
     secondary:
       "border border-[var(--color-line-strong)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]",
     ghost: "text-[var(--color-ink-soft)] hover:bg-[var(--color-grey-soft)]",
-    success: "bg-[var(--color-green)] text-white hover:opacity-90",
+    // Fixed dark-navy text rather than the theme's --color-ink: the accent
+    // green button is a fixed-colour island (same bright #80bc00 in both
+    // themes), so its text must stay dark regardless of light/dark mode.
+    success: "bg-[var(--color-brand-accent)] text-[#012971] hover:opacity-90",
     danger: "bg-[var(--color-red)] text-white hover:opacity-90",
   };
   return <button className={`${base} ${styles[variant]} ${className}`} {...props} />;

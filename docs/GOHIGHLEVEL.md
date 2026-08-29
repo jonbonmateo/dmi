@@ -407,7 +407,7 @@ so you can review the wiring without any live account.
   (snake_case from a raw webhook, camelCase from a cleaner Zap) get
   normalised on the way in — this is what determines whether `ghlContactId`
   gets picked up in the first place.
-- **End-to-end (mock mode)**: `npm run seed` runs three sample inspections
+- **End-to-end (mock mode)**: `npm run seed` runs five sample inspections
   fully offline; each one's publish step exercises `syncGhl()` in dry-run
   mode (since no credentials are configured), and you can see the exact
   payload on each seeded report at `/dmi/<runId>`.

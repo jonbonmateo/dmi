@@ -1,0 +1,200 @@
+{
+  "domain": "quickfixautoshop",
+  "_comment": "Demo fixture: NO website. Exercises the no-website path \u2014 website criteria fail outright, but Google profile, ads and social are still evaluated from other signals.",
+  "places": [
+    {
+      "placeId": "gp_qf_main",
+      "name": "Quick Fix Auto Shop",
+      "formattedAddress": "3311 Airport Blvd, Mobile, AL 36606, USA",
+      "phone": "+1 251-555-0119",
+      "website": null,
+      "rating": 4.4,
+      "reviewCount": 168,
+      "mapsUrl": "https://maps.google.com/?cid=6601",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 21,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-22T00:00:00Z",
+      "editorialSummary": "Family-run auto repair shop, walk-ins welcome, no appointment needed."
+    },
+    {
+      "placeId": "gp_qf_c1",
+      "name": "Airport Blvd Tire & Auto",
+      "formattedAddress": "3900 Airport Blvd, Mobile, AL",
+      "phone": "+1 251-555-0120",
+      "website": "https://airportblvdtire.example",
+      "rating": 4.1,
+      "reviewCount": 220,
+      "mapsUrl": "https://maps.google.com/?cid=6602",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 30,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-20T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_qf_c2",
+      "name": "Mobile Bay Auto Care",
+      "formattedAddress": "1200 Government St, Mobile, AL",
+      "phone": "+1 251-555-0130",
+      "website": "https://mobilebayauto.example",
+      "rating": 4.6,
+      "reviewCount": 310,
+      "mapsUrl": "https://maps.google.com/?cid=6603",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 40,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-25T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_qf_c3",
+      "name": "Causeway Automotive",
+      "formattedAddress": "2600 Battleship Pkwy, Mobile, AL",
+      "phone": "+1 251-555-0140",
+      "website": null,
+      "rating": 4.0,
+      "reviewCount": 85,
+      "mapsUrl": "https://maps.google.com/?cid=6604",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": false,
+      "photoCount": 0,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-07-29T00:00:00Z",
+      "editorialSummary": null
+    }
+  ],
+  "citations": {
+    "scorePercent": 54,
+    "sources": [
+      {
+        "name": "BrightLocal citation audit",
+        "url": "https://www.brightlocal.com/",
+        "found": true,
+        "nameMatch": true,
+        "phoneMatch": true,
+        "addressMatch": false,
+        "note": "Suite number missing on 19 of 47 directories; otherwise consistent. Below the 60% benchmark."
+      }
+    ]
+  },
+  "googleAds": [],
+  "metaAds": [
+    {
+      "id": "qfm1",
+      "platform": "meta",
+      "headline": "Quick Fix Auto Shop \u2014 Walk-Ins Welcome",
+      "body": "No appointment needed. Open 7 days.",
+      "firstSeen": "2026-07-10",
+      "landingUrl": "https://www.facebook.com/quickfixautoshopmobile",
+      "sourceUrl": "https://www.facebook.com/ads/library/?id=qfm1"
+    }
+  ],
+  "facebookProfile": {
+    "url": "https://www.facebook.com/quickfixautoshopmobile",
+    "status": "confirmed",
+    "handle": "quickfixautoshopmobile",
+    "title": "Quick Fix Auto Shop",
+    "aboutText": "Family-run auto repair on Airport Blvd since 2011. Walk-ins welcome, no appointment needed. Brakes, oil changes, AC repair, diagnostics.",
+    "hasProfileImage": true,
+    "hasCoverImage": true,
+    "followers": 2860,
+    "postsPerWeek": 4.6,
+    "observedWindowDays": 30,
+    "posts": [
+      {
+        "date": "2026-08-26",
+        "caption": "Mrs. Patterson's Camry got a full brake job today \u2014 before and after.",
+        "media": "original",
+        "likes": 51,
+        "comments": 8,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-24",
+        "caption": "Walk-ins welcome all week, no appointment needed!",
+        "media": "original",
+        "likes": 19,
+        "comments": 2,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-21",
+        "caption": "Behind the scenes: diagnosing a check-engine light.",
+        "media": "original",
+        "likes": 37,
+        "comments": 4,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-19",
+        "caption": "Our newest technician, welcome to the team Marcus!",
+        "media": "original",
+        "likes": 64,
+        "comments": 11,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-16",
+        "caption": "AC repair season is here. Beat the heat, book this week.",
+        "media": "original",
+        "likes": 28,
+        "comments": 3,
+        "businessReplied": true,
+        "url": null
+      }
+    ]
+  },
+  "instagramProfile": {
+    "url": "https://www.instagram.com/quickfixautoshop",
+    "status": "confirmed",
+    "handle": "quickfixautoshop",
+    "title": "Quick Fix Auto Shop",
+    "aboutText": "Mobile, AL auto repair. Walk-ins welcome.",
+    "hasProfileImage": true,
+    "hasCoverImage": true,
+    "followers": 940,
+    "postsPerWeek": 2.8,
+    "observedWindowDays": 30,
+    "posts": [
+      {
+        "date": "2026-08-25",
+        "caption": "Oil change special this week.",
+        "media": "original",
+        "likes": 22,
+        "comments": 1,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-20",
+        "caption": "Shop cat supervising today's brake job.",
+        "media": "original",
+        "likes": 88,
+        "comments": 14,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-14",
+        "caption": "Diagnostic day.",
+        "media": "original",
+        "likes": 15,
+        "comments": 0,
+        "businessReplied": false,
+        "url": null
+      }
+    ]
+  }
+}

@@ -3,6 +3,7 @@ import { getAuth } from "@/lib/auth/session";
 import { googleConfigured } from "@/lib/auth/google";
 import { guestsAllowed, signupsAllowed } from "@/lib/auth/accounts";
 import { getStore } from "@/lib/storage";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +30,11 @@ export default async function LoginPage({
   const isFirstRun = (await getStore().countUsers()) === 0;
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-2">
+    <main className="relative grid min-h-screen lg:grid-cols-2">
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeToggle />
+      </div>
+
       {/* ------------------------------------------------------ the pitch */}
       <section className="hidden flex-col justify-between bg-[var(--color-surface)] p-12 lg:flex border-r border-[var(--color-line)]">
         <div className="flex items-center gap-2.5 font-bold">

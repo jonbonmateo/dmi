@@ -1,0 +1,185 @@
+{
+  "domain": "route9autogroup.example",
+  "_comment": "Demo fixture: a 3-location shop group. Exercises the multiple-locations review flag.",
+  "pages": {
+    "/": "<!doctype html><html lang=\"en\"><head>\n<title>Route 9 Auto Group | Springfield, Northgate & Eastside, MA</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Full-service auto repair with three Western Mass locations. Same warranty, same technicians you trust, wherever you go.\">\n<script>!function(f,b,e,v,n,t,s){}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1029384756');</script><script async src='https://www.googletagmanager.com/gtag/js?id=AW-123456789'></script><script>gtag('config', 'AW-123456789');</script>\n</head><body>\n<header><img src=\"/img/logo.png\" alt=\"Route 9 Auto Group logo\"><nav><a href=\"/services/brake-repair\">Brake Repair</a><a href=\"/services/oil-change\">Oil Change</a><a href=\"/locations\">Locations</a><a href=\"/about\">About</a></nav><a href=\"tel:(413) 555-0161\">(413) 555-0161</a>\n<a href=\"/appointments\">Schedule Service</a></header>\n<main><h1>Route 9 Auto Group</h1><h2>Our Services</h2><h2>Why Choose Us</h2>\n<p>Three locations across Western Massachusetts: Springfield, Northgate and Eastside. One standard of work everywhere.</p>\n<address>220 Boston Rd, Springfield, MA 01109</address>\n<img src=\"/img/springfield-shop.jpg\" alt=\"Springfield location exterior\"><img src=\"/img/team-photo.jpg\" alt=\"The Route 9 Auto Group team\"><img src=\"/img/bay-2.jpg\" alt=\"Technician performing an alignment\"><img src=\"/img/logo.png\" alt=\"Route 9 Auto Group logo\">\n<a href=\"/contact\">Contact Us</a>\n</main>\n<footer><a href=\"https://www.facebook.com/route9autogroup\">Facebook</a><p>Route 9 Auto Group \u2014 220 Boston Rd, Springfield, MA 01109 \u2014 (413) 555-0161</p></footer>\n</body></html>",
+    "/services/brake-repair": "<!doctype html><html lang=\"en\"><head><title>Brake Repair</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Brake Repair performed by ASE-certified technicians. Same-day service available.\">\n</head><body><h1>Brake Repair</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/brake-repair.jpg\" alt=\"Brake Repair in progress\">\n<p>Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts.</p><a href=\"/services/oil-change\">Oil Change</a><a href=\"/locations\">Locations</a><a href=\"/contact\">Contact</a></body></html>",
+    "/services/oil-change": "<!doctype html><html lang=\"en\"><head><title>Oil Change</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"description\" content=\"Oil Change performed by ASE-certified technicians. Same-day service available.\">\n</head><body><h1>Oil Change</h1><h2>What we check</h2><h2>What it costs</h2>\n<img src=\"/img/oil-change.jpg\" alt=\"Oil Change in progress\">\n<p>Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts. Our certified technicians handle every aspect of this repair with factory-grade parts.</p><a href=\"/services/brake-repair\">Brakes</a><a href=\"/locations\">Locations</a></body></html>"
+  },
+  "pagespeed": {
+    "mobile": 71,
+    "desktop": 89
+  },
+  "places": [
+    {
+      "placeId": "gp_r9_main",
+      "name": "Route 9 Auto Group",
+      "formattedAddress": "220 Boston Rd, Springfield, MA 01109, USA",
+      "phone": "+1 413-555-0161",
+      "website": "https://route9autogroup.example",
+      "rating": 4.5,
+      "reviewCount": 203,
+      "mapsUrl": "https://maps.google.com/?cid=5501",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 28,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-21T00:00:00Z",
+      "editorialSummary": "Full-service auto repair group with three Western Massachusetts locations."
+    },
+    {
+      "placeId": "gp_r9_north",
+      "name": "Route 9 Auto Group - Northgate",
+      "formattedAddress": "88 Cooley St, Springfield, MA 01128, USA",
+      "phone": "+1 413-555-0162",
+      "website": "https://route9autogroup.example",
+      "rating": 4.3,
+      "reviewCount": 97,
+      "mapsUrl": "https://maps.google.com/?cid=5502",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 14,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-10T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_r9_east",
+      "name": "Route 9 Auto Group - Eastside",
+      "formattedAddress": "1500 Wilbraham Rd, Springfield, MA 01119, USA",
+      "phone": "+1 413-555-0163",
+      "website": "https://route9autogroup.example",
+      "rating": 4.6,
+      "reviewCount": 150,
+      "mapsUrl": "https://maps.google.com/?cid=5503",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 19,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-24T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_r9_c1",
+      "name": "Pioneer Valley Tire",
+      "formattedAddress": "900 Page Blvd, Springfield, MA",
+      "phone": "+1 413-555-0170",
+      "website": null,
+      "rating": 4.2,
+      "reviewCount": 140,
+      "mapsUrl": "https://maps.google.com/?cid=5504",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 10,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-05T00:00:00Z",
+      "editorialSummary": null
+    },
+    {
+      "placeId": "gp_r9_c2",
+      "name": "Springfield Complete Auto",
+      "formattedAddress": "400 Liberty St, Springfield, MA",
+      "phone": "+1 413-555-0175",
+      "website": null,
+      "rating": 4.4,
+      "reviewCount": 210,
+      "mapsUrl": "https://maps.google.com/?cid=5505",
+      "businessStatus": "OPERATIONAL",
+      "hasHours": true,
+      "hasPhotos": true,
+      "photoCount": 22,
+      "primaryType": "car_repair",
+      "latestReviewAt": "2026-08-18T00:00:00Z",
+      "editorialSummary": null
+    }
+  ],
+  "citations": {
+    "scorePercent": 66,
+    "sources": [
+      {
+        "name": "BrightLocal citation audit",
+        "url": "https://www.brightlocal.com/",
+        "found": true,
+        "nameMatch": true,
+        "phoneMatch": true,
+        "addressMatch": true,
+        "note": "Consistent across 34 of 51 directories; Northgate and Eastside locations occasionally listed as separate businesses."
+      }
+    ]
+  },
+  "googleAds": [
+    {
+      "id": "r9a1",
+      "platform": "google",
+      "headline": "Route 9 Auto Group | 3 Locations",
+      "body": "Brakes, oil changes, alignments. Same-day service.",
+      "firstSeen": "2026-05-14",
+      "landingUrl": "https://route9autogroup.example",
+      "sourceUrl": "https://adstransparency.google.com/advertiser/AR55"
+    }
+  ],
+  "metaAds": [],
+  "facebookProfile": {
+    "url": "https://www.facebook.com/route9autogroup",
+    "status": "confirmed",
+    "handle": "route9autogroup",
+    "title": "Route 9 Auto Group",
+    "aboutText": "Three Western Mass locations, one standard of work: Springfield, Northgate, Eastside. ASE-certified. Book online or call your nearest shop.",
+    "hasProfileImage": true,
+    "hasCoverImage": true,
+    "followers": 1420,
+    "postsPerWeek": 2.4,
+    "observedWindowDays": 30,
+    "posts": [
+      {
+        "date": "2026-08-23",
+        "caption": "Our Eastside team after a big brake job marathon Saturday.",
+        "media": "original",
+        "likes": 34,
+        "comments": 5,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-16",
+        "caption": "Northgate now offering free battery testing all month.",
+        "media": "original",
+        "likes": 22,
+        "comments": 2,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-08-09",
+        "caption": "Springfield shop got a new alignment rack!",
+        "media": "original",
+        "likes": 41,
+        "comments": 6,
+        "businessReplied": false,
+        "url": null
+      },
+      {
+        "date": "2026-08-02",
+        "caption": "Thank you Western Mass for 15 years.",
+        "media": "original",
+        "likes": 58,
+        "comments": 9,
+        "businessReplied": true,
+        "url": null
+      },
+      {
+        "date": "2026-07-26",
+        "caption": "Free AC check with any service through Labor Day.",
+        "media": "original",
+        "likes": 30,
+        "comments": 4,
+        "businessReplied": true,
+        "url": null
+      }
+    ]
+  }
+}
