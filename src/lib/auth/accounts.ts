@@ -112,11 +112,6 @@ export function signupsAllowed(): boolean {
   return env.allowSignup;
 }
 
-/** Roles permitted to run the app against real APIs and the real CRM. */
-export function canUseLiveMode(user: User): boolean {
-  return user.role !== "guest";
-}
-
 export async function touchLogin(user: User): Promise<void> {
   user.lastLoginAt = new Date().toISOString();
   await getStore().upsertUser(user);

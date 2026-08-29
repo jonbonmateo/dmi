@@ -5,13 +5,17 @@
  * to switch, you sign out and back in. That is the whole point — a DMI's mode
  * has to be a fact about the run, not a toggle someone may have flipped
  * halfway through.
+ *
+ * Every role can pick either mode, guests included — what a guest can't do
+ * is write (see WRITE_ROLES), not which mode they look around in. So the
+ * only thing that can block "live" here is live mode itself not being
+ * configured, never who's asking.
  */
 import { NextResponse } from "next/server";
 import { routeErrorResponse } from "@/lib/api-wrap";
 import { z } from "zod";
 import { getStore } from "@/lib/storage";
 import { requireAuth } from "@/lib/auth/guard";
-import { canUseLiveMode } from "@/lib/auth/accounts";
 import { getReadiness } from "@/lib/readiness";
 import { log } from "@/lib/logger";
 
@@ -41,12 +45,6 @@ async function handlePost(req: Request) {
   const mode = parsed.data.mode;
 
   if (mode === "live") {
-    if (!canUseLiveMode(user)) {
-      return NextResponse.json(
-        { error: "Guest sessions are limited to mock mode. Sign in with an account to run live." },
-        { status: 403 },
-      );
-    }
     const readiness = getReadiness();
     if (!readiness.liveAvailable) {
       return NextResponse.json(

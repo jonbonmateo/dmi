@@ -71,13 +71,11 @@ function CheckRow({ check }: { check: ReadinessCheck }) {
 
 export function ModePicker({
   readiness,
-  canUseLive,
   userName,
   role,
   nextPath,
 }: {
   readiness: Readiness;
-  canUseLive: boolean;
   userName: string;
   role: string;
   nextPath: string | null;
@@ -87,7 +85,7 @@ export function ModePicker({
   const [error, setError] = useState<string | null>(null);
   const [showChecks, setShowChecks] = useState(!readiness.liveAvailable);
 
-  const liveBlocked = !readiness.liveAvailable || !canUseLive;
+  const liveBlocked = !readiness.liveAvailable;
 
   async function choose(mode: "live" | "mock") {
     setBusy(mode);
@@ -152,11 +150,7 @@ export function ModePicker({
             </div>
           </dl>
 
-          {!canUseLive ? (
-            <p className="mt-4 rounded-lg bg-[var(--color-grey-soft)] px-3 py-2 text-sm text-[var(--color-muted)]">
-              Guest sessions cannot run live. Sign in with an account to use real data.
-            </p>
-          ) : !readiness.liveAvailable ? (
+          {!readiness.liveAvailable ? (
             <p className="mt-4 rounded-lg bg-[var(--color-red-soft)] px-3 py-2 text-sm text-[var(--color-red)]">
               {readiness.requiredMissing.length} required{" "}
               {readiness.requiredMissing.length === 1 ? "setting is" : "settings are"} missing. Follow

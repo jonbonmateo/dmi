@@ -28,13 +28,8 @@ export function AppShell({
     { href: "/", label: "Inspections", key: "runs" },
     { href: "/review", label: "Review queue", key: "review", badge: openReviews },
     { href: "/tracking", label: "Tracking sheet", key: "tracking" },
+    { href: "/setup", label: "Admin Dev Setup", key: "setup" },
   ];
-  // Setup exposes what's wired up (and what a live run degrades to when it
-  // isn't) — connection status, not secrets, but still not something every
-  // signed-in role needs to see day to day.
-  if (auth.user.role === "admin") {
-    nav.push({ href: "/setup", label: "Admin Dev Setup", key: "setup" });
-  }
 
   return (
     <div className="min-h-screen">

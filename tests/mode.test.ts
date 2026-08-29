@@ -11,11 +11,9 @@ delete process.env.DMI_FORCE_MOCK;
 import { currentMode, isMock, withMode } from "../src/lib/runtime-mode";
 import { providerMode } from "../src/lib/env";
 import { getReadiness } from "../src/lib/readiness";
-import { canUseLiveMode } from "../src/lib/auth/accounts";
 import { intake } from "../src/lib/intake";
 import { runPipeline } from "../src/lib/pipeline";
 import { getStore } from "../src/lib/storage";
-import type { User } from "../src/lib/auth/types";
 
 const dataDir = path.resolve(process.cwd(), ".data/test-mode");
 before(async () => { await fs.rm(dataDir, { recursive: true, force: true }); });
@@ -74,17 +72,6 @@ test("readiness blocks live mode until the required checks pass", () => {
 test("readiness names Google Places as required for live mode", () => {
   const places = getReadiness().checks.find((c) => c.id === "google_places");
   assert.equal(places?.importance, "required");
-});
-
-test("guests cannot use live mode", () => {
-  const base: User = {
-    id: "u", email: null, name: "Guest", role: "guest", provider: "guest",
-    passwordHash: null, avatarUrl: null, onboardedAt: null, disabledAt: null,
-    lastLoginAt: null, createdAt: new Date().toISOString(),
-  };
-  assert.equal(canUseLiveMode(base), false);
-  assert.equal(canUseLiveMode({ ...base, role: "member", provider: "password" }), true);
-  assert.equal(canUseLiveMode({ ...base, role: "admin", provider: "password" }), true);
 });
 
 test("a run is stamped with the mode that produced it, and resumes in it", async () => {

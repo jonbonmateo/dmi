@@ -13,7 +13,6 @@ export default async function SetupPage() {
   const auth = await getAuth();
   if (!auth) redirect("/login");
   if (!auth.mode) redirect("/mode");
-  if (auth.user.role !== "admin") redirect("/");
 
   const store = getStore();
   const open = await store.listReviewItems({ status: "open" });

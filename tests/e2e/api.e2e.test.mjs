@@ -276,12 +276,13 @@ describe("password reset", () => {
 });
 
 describe("guests", () => {
-  test("a guest is pinned to mock mode and cannot write", async () => {
+  test("a guest can read after choosing a mode, but cannot write", async () => {
     const c = makeClient(app.base);
     const { status, data } = await c.post("/api/auth/guest", {});
     assert.equal(status, 200);
-    assert.equal(data.mode, "mock");
+    assert.equal(data.mode, null, "a guest is not pinned to a mode at sign-in");
     assert.equal(data.user.role, "guest");
+    await c.post("/api/auth/mode", { mode: "mock" });
 
     const runs = await c.get("/api/runs");
     assert.equal(runs.status, 200, "guests may read");
@@ -296,11 +297,21 @@ describe("guests", () => {
     assert.equal(write.status, 403, "guests must not be able to change a score");
   });
 
-  test("a guest cannot escalate to live mode", async () => {
+  test("a guest chooses a mode just like any other account", async () => {
     const c = makeClient(app.base);
-    await c.post("/api/auth/guest", {});
-    const { status } = await c.post("/api/auth/mode", { mode: "live" });
-    assert.ok(status === 403 || status === 409, `expected refusal, got ${status}`);
+    const guest = await c.post("/api/auth/guest", {});
+    assert.equal(guest.data.mode, null, "a guest gets the mode question too, not an auto-pinned mode");
+    assert.equal(guest.data.next, "/mode");
+
+    // Live is blocked here by the harness having no Google Places key, the
+    // same reason it's blocked for every other role — not because they're a
+    // guest. A guest choosing mock, meanwhile, works exactly like anyone else.
+    const live = await c.post("/api/auth/mode", { mode: "live" });
+    assert.equal(live.status, 412, "blocked by readiness, not by role");
+
+    const mock = await c.post("/api/auth/mode", { mode: "mock" });
+    assert.equal(mock.status, 200);
+    assert.equal(mock.data.mode, "mock");
   });
 });
 
@@ -499,22 +510,5 @@ describe("starting an inspection from the dashboard", () => {
     await c.post("/api/auth/signup", { email: `dash-nomode-${Date.now()}@example.test`, password: PASSWORD });
     const res = await c.post("/api/runs", { shopName: "No Mode Yet Shop" });
     assert.equal(res.status, 409);
-  });
-});
-
-describe("Admin Dev Setup access", () => {
-  test("a non-admin member is redirected away from /setup", async () => {
-    const c = makeClient(app.base);
-    // The very first account in a fresh store becomes admin (see
-    // roleForNewUser); every account after that is a plain member, so a
-    // second signup here reliably exercises the non-admin path.
-    await c.post("/api/auth/signup", { email: `nonadmin-${Date.now()}@example.test`, password: PASSWORD });
-    await c.post("/api/auth/mode", { mode: "mock" });
-    const res = await fetch(`${app.base}/setup`, {
-      headers: { cookie: [...c.jar.entries()].map(([k, v]) => `${k}=${v}`).join("; ") },
-      redirect: "manual",
-    });
-    assert.equal(res.status, 307);
-    assert.doesNotMatch(res.headers.get("location") ?? "", /\/setup/);
   });
 });

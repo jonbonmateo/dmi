@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getAuth } from "@/lib/auth/session";
-import { canUseLiveMode } from "@/lib/auth/accounts";
 import { getReadiness } from "@/lib/readiness";
 import { ModePicker } from "./mode-picker";
 
@@ -27,7 +26,6 @@ export default async function ModePage({
   return (
     <ModePicker
       readiness={readiness}
-      canUseLive={canUseLiveMode(auth.user)}
       userName={auth.user.name ?? "there"}
       role={auth.user.role}
       nextPath={next ?? null}

@@ -80,7 +80,7 @@ export const env = {
     const raw = str("AUTH_ALLOWED_DOMAINS");
     return raw ? raw.split(",").map((d) => d.trim().toLowerCase()).filter(Boolean) : [];
   },
-  /** Guest sign-in is on by default; it is mock-mode only. */
+  /** Guest sign-in is on by default; guests can choose either mode but cannot write. */
   get allowGuest() {
     return str("AUTH_ALLOW_GUEST") !== "0";
   },

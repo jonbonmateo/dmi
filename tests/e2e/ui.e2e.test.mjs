@@ -73,16 +73,21 @@ describe("sign-in journey", () => {
     await page.context().close();
   });
 
-  test("the guest button signs in and pins mock mode", async () => {
+  test("the guest button signs in and still offers the mode choice", async () => {
     const page = await newPage();
     await page.goto(`${app.base}/login`, { waitUntil: "networkidle" });
     await Promise.all([
-      page.waitForURL(/\/onboarding/, { timeout: 20_000 }),
+      page.waitForURL(/\/mode/, { timeout: 20_000 }),
       page.getByRole("button", { name: /continue as a guest/i }).click(),
     ]);
-    // A guest never sees the mode question — the session is already pinned.
+    // A guest picks a mode like anyone else — only what they can do once
+    // signed in (read vs. write) is restricted, not which mode they see.
+    await Promise.all([
+      page.waitForURL(/\/onboarding/, { timeout: 20_000 }),
+      page.getByRole("button", { name: /start in mock mode/i }).click(),
+    ]);
     const session = await page.evaluate(() => fetch("/api/auth/session").then((r) => r.json()));
-    assert.equal(session.mode, "mock", "guests must be pinned to mock mode at sign-in");
+    assert.equal(session.mode, "mock");
     assert.equal(session.user.role, "guest");
     assert.deepEqual(page.__errors, []);
     await page.context().close();

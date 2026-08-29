@@ -2,7 +2,9 @@
  * POST /api/auth/guest — a throwaway account for looking around.
  *
  * Guests get a real (short-lived) user record so their actions stay
- * attributable, are pinned to mock mode, and cannot write.
+ * attributable, and cannot write. They still choose live or mock mode like
+ * any other account (see /api/auth/mode) — being a guest only limits what
+ * they can do once signed in, not which mode they look around in.
  */
 import { NextResponse } from "next/server";
 import { routeErrorResponse } from "@/lib/api-wrap";
@@ -28,8 +30,7 @@ async function handlePost(req: Request) {
   const session = newSessionRecord({
     userId: user.id,
     isGuest: true,
-    // Guests are locked to mock mode; there is no mode question for them.
-    mode: "mock",
+    mode: null,
     ip,
     userAgent: req.headers.get("user-agent"),
   });
@@ -39,10 +40,10 @@ async function handlePost(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    next: "/onboarding",
-    mode: "mock",
+    next: "/mode",
+    mode: null,
     user: { id: user.id, name: user.name, role: user.role },
-    notice: "You are signed in as a guest. The app is pinned to mock mode and you cannot change saved data.",
+    notice: "You are signed in as a guest and cannot change saved data.",
   });
 }
 
