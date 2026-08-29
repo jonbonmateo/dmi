@@ -196,6 +196,20 @@ brand that exercises the multiple-locations review flag (yellow), and a shop
 with no website at all but a genuinely active Facebook/Instagram presence
 (red) — the classic "we only use Facebook" small-shop pattern.
 
+> **If you ever pull real credentials into a plain `.env`** (e.g. via
+> `vercel env pull` targeting `.env` instead of `.env.local`, or a manual
+> copy-paste), be aware that `next dev`/`next build`/`next start` auto-load
+> `.env` themselves — but `npm run seed` and `npm run dmi` run via `tsx`,
+> which does not. The result is two different databases depending on which
+> command you type: the CLI tools write to the local JSON store, while the
+> dev server reads from whatever real database is in `.env`, and anything
+> you seed or run from the CLI silently never appears when you open the app.
+> The fix is a `.env.local` with the real database vars blanked
+> (`NEXT_PUBLIC_SUPABASE_URL=` / `SUPABASE_SERVICE_ROLE_KEY=`) — `.env.local`
+> takes precedence over `.env` per key, so this forces local dev back onto
+> the same local store the CLI tools already use, without touching `.env`
+> itself.
+
 ### First sign-in
 
 Open the app and it will send you to `/login`. With no accounts yet, the form

@@ -187,14 +187,14 @@ export function Button({
   const base =
     "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-55";
   const styles: Record<string, string> = {
-    primary: "bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand-hover)]",
+    // Light mode: leaf-green fill (#80bc00) with off-white text (#eaeef1),
+    // per an explicit request. Dark mode is untouched — see the
+    // --color-btn-primary-* token definitions in globals.css.
+    primary: "bg-[var(--color-btn-primary-bg)] text-[var(--color-btn-primary-fg)] hover:bg-[var(--color-btn-primary-bg-hover)]",
     secondary:
       "border border-[var(--color-line-strong)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]",
     ghost: "text-[var(--color-ink-soft)] hover:bg-[var(--color-grey-soft)]",
-    // Fixed dark-navy text rather than the theme's --color-ink: the accent
-    // green button is a fixed-colour island (same bright #80bc00 in both
-    // themes), so its text must stay dark regardless of light/dark mode.
-    success: "bg-[var(--color-brand-accent)] text-[#012971] hover:opacity-90",
+    success: "bg-[var(--color-brand-accent)] text-[var(--color-btn-success-fg)] hover:opacity-90",
     danger: "bg-[var(--color-red)] text-white hover:opacity-90",
   };
   return <button className={`${base} ${styles[variant]} ${className}`} {...props} />;
