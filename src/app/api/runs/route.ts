@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { routeErrorResponse } from "@/lib/api-wrap";
 import { getStore } from "@/lib/storage";
@@ -94,11 +94,20 @@ async function handlePost(req: Request) {
   );
 
   if (!result.duplicate) {
-    void runPipeline(result.run.id).catch((e) =>
-      log.error("dashboard-triggered run failed", {
-        run: result.run.id,
-        error: e instanceof Error ? e.message : String(e),
-      }),
+    // `after()`, not a bare fire-and-forget promise: on Vercel, a serverless
+    // function can be frozen the instant the response is sent, killing any
+    // work that isn't part of the request's own async chain — which is
+    // exactly what left runs stuck on "queued"/"running" forever (the
+    // client's polling had nothing left to observe finishing). `after()`
+    // tells the platform to keep this invocation alive until the callback
+    // settles, up to the same maxDuration as the request itself.
+    after(() =>
+      runPipeline(result.run.id).catch((e) =>
+        log.error("dashboard-triggered run failed", {
+          run: result.run.id,
+          error: e instanceof Error ? e.message : String(e),
+        }),
+      ),
     );
   }
 

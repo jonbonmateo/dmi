@@ -6,7 +6,7 @@
  * runs in the background so the webhook never times out; if the process dies
  * mid-run, /api/cron picks it back up.
  */
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { routeErrorResponse } from "@/lib/api-wrap";
 import { IntakeSchema, intake } from "@/lib/intake";
 import { runPipeline } from "@/lib/pipeline";
@@ -45,10 +45,17 @@ async function handlePost(req: Request) {
     const reportUrl = `${env.appUrl}/dmi/${result.run.id}`;
 
     if (!result.duplicate) {
-      // Fire and forget — the run checkpoints itself, so an interrupted
-      // background task is recoverable rather than lost.
-      void runPipeline(result.run.id).catch((e) =>
-        log.error("background run failed", { run: result.run.id, error: e instanceof Error ? e.message : String(e) }),
+      // `after()`, not a bare fire-and-forget promise: on Vercel the
+      // function can be frozen the instant the response is sent, killing
+      // any work that isn't part of the request's own async chain.
+      // `after()` keeps this invocation alive until the callback settles
+      // (up to maxDuration) — /api/cron's daily sweep is still the backstop
+      // for a run that genuinely gets interrupted, not the primary way runs
+      // are expected to finish.
+      after(() =>
+        runPipeline(result.run.id).catch((e) =>
+          log.error("background run failed", { run: result.run.id, error: e instanceof Error ? e.message : String(e) }),
+        ),
       );
     }
 
