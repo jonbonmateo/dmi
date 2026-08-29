@@ -17,6 +17,7 @@
     "test:all": "npm run test && npm run test:e2e"
   },
   "dependencies": {
+    "@next/env": "16.2.6",
     "@supabase/supabase-js": "^2.58.0",
     "cheerio": "^1.0.0",
     "next": "16.2.6",

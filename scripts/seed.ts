@@ -13,6 +13,14 @@
  *
  *   npm run seed
  */
+// Loaded with Next's own env loader (not a plain `import "dotenv/config"`) so
+// this CLI script sees .env.local/.env with the exact same file precedence
+// as `next dev`/`build`/`start` — tsx does not auto-load either file on its
+// own, and a mismatch there is exactly what caused a real "my data isn't
+// showing up" support incident.
+import { loadEnvConfig } from "@next/env";
+loadEnvConfig(process.cwd());
+
 process.env.DMI_FORCE_MOCK = "1";
 
 import { intake } from "../src/lib/intake";

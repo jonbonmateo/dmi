@@ -196,19 +196,32 @@ brand that exercises the multiple-locations review flag (yellow), and a shop
 with no website at all but a genuinely active Facebook/Instagram presence
 (red) — the classic "we only use Facebook" small-shop pattern.
 
-> **If you ever pull real credentials into a plain `.env`** (e.g. via
-> `vercel env pull` targeting `.env` instead of `.env.local`, or a manual
-> copy-paste), be aware that `next dev`/`next build`/`next start` auto-load
-> `.env` themselves — but `npm run seed` and `npm run dmi` run via `tsx`,
-> which does not. The result is two different databases depending on which
-> command you type: the CLI tools write to the local JSON store, while the
-> dev server reads from whatever real database is in `.env`, and anything
-> you seed or run from the CLI silently never appears when you open the app.
-> The fix is a `.env.local` with the real database vars blanked
-> (`NEXT_PUBLIC_SUPABASE_URL=` / `SUPABASE_SERVICE_ROLE_KEY=`) — `.env.local`
-> takes precedence over `.env` per key, so this forces local dev back onto
-> the same local store the CLI tools already use, without touching `.env`
-> itself.
+> **`npm run seed` and `npm run dmi` load `.env.local`/`.env` themselves**,
+> using Next's own `@next/env` loader (`loadEnvConfig`) at the top of each
+> script — so they see the exact same variables, with the exact same
+> `.env.local` > `.env` precedence, as `next dev`/`build`/`start` do. This
+> matters because `tsx` (what actually runs these scripts) does not auto-load
+> either file on its own; without this, a real Google Places or PageSpeed key
+> sitting in `.env.local` would silently do nothing for a CLI-run inspection,
+> and — worse — if a plain `.env` ever carries real Supabase credentials
+> (e.g. `vercel env pull` targeting `.env` instead of `.env.local`, or a
+> manual copy-paste) the CLI tools and the dev server would resolve to two
+> different databases depending on which command you type, with anything
+> seeded or run from the CLI silently never appearing in the app.
+>
+> If you ever pull real credentials into a plain `.env`, add a `.env.local`
+> that blanks the two Supabase vars (`NEXT_PUBLIC_SUPABASE_URL=` /
+> `SUPABASE_SERVICE_ROLE_KEY=`) — `.env.local` wins per key, so this forces
+> local dev back onto the same local JSON store the CLI tools use, without
+> touching `.env` itself.
+>
+> **Also:** if you switch between `npm run build` (production) and
+> `npm run dev` (Turbopack) against the same project, clear `.next` first
+> (`rm -rf .next`). The two build modes can leave conflicting artifacts in
+> that directory, which manifests as working pages suddenly 404ing —
+> including ones with no relation to whatever you were just testing, like
+> `/login` or `/api/health`. `.next` is a build cache, not source; deleting
+> it is always safe and it regenerates on the next command.
 
 ### First sign-in
 

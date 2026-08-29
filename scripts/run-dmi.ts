@@ -6,6 +6,15 @@
  *
  * Add --mock to force fixture mode.
  */
+// Loaded with Next's own env loader (not a plain `import "dotenv/config"`) so
+// this CLI script sees .env.local/.env with the exact same file precedence
+// as `next dev`/`build`/`start` — tsx does not auto-load either file on its
+// own. Without this, a real Google Places / PageSpeed key sitting in
+// .env.local would silently do nothing when run through this script, even
+// though `--mock` was NOT passed and the run genuinely thinks it's live.
+import { loadEnvConfig } from "@next/env";
+loadEnvConfig(process.cwd());
+
 import { intake } from "../src/lib/intake";
 import { runPipeline } from "../src/lib/pipeline";
 import { getStore } from "../src/lib/storage";
