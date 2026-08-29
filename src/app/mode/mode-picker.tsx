@@ -194,7 +194,16 @@ export function ModePicker({
               mistakes a demo for a real inspection.
             </p>
           </div>
-          <Button variant="secondary" onClick={() => choose("mock")} disabled={busy !== null} className="mt-4 w-full">
+          <Button
+            // When live is blocked, mock is the only button that actually
+            // does anything — it gets the prominent styling so that's
+            // visually obvious, rather than leaving the working option
+            // looking like the secondary, less-clickable choice.
+            variant={liveBlocked ? "primary" : "secondary"}
+            onClick={() => choose("mock")}
+            disabled={busy !== null}
+            className="mt-4 w-full"
+          >
             {busy === "mock" ? "Starting…" : "Start in mock mode"}
           </Button>
         </Card>

@@ -184,8 +184,17 @@ export function Button({
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "ghost" | "success" | "danger";
 }) {
+  // Disabled state overrides every variant's colour with `!important` rather
+  // than just fading it: a real incident showed that a faded-but-still-green
+  // primary button reads as "an active button that mysteriously does
+  // nothing" rather than "disabled" — someone clicked the inert "Start in
+  // live mode" button (bright green, just dimmed) while the button that
+  // actually worked (plain outlined "mock mode") looked less clickable next
+  // to it. An unmistakably grey, flat disabled look fixes that regardless of
+  // which variant it's applied to.
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-55";
+    "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors " +
+    "disabled:cursor-not-allowed disabled:!bg-[var(--color-grey-soft)] disabled:!text-[var(--color-muted)] disabled:!border-[var(--color-line)] disabled:shadow-none";
   const styles: Record<string, string> = {
     // Light mode: leaf-green fill (#80bc00) with off-white text (#eaeef1),
     // per an explicit request. Dark mode is untouched — see the
