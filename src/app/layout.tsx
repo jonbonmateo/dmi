@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import { RouteProgress } from "@/components/route-progress";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -43,7 +45,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         */}
         <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {/*
+          Isolated from page content on purpose: this Suspense boundary
+          wraps only this small floating indicator, never a page's own
+          server component (see RouteProgress's own comment for why that
+          distinction matters for redirect()-performing pages).
+        */}
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

@@ -30,12 +30,10 @@
   --color-brand-accent: #80bc00;
   --color-focus: #1449c9;
 
-  /* Primary/success buttons: navy fill, off-white text — the original
-     brand look. (Briefly green-on-off-white per an earlier request, then
-     reverted back to navy.) */
+  /* Primary buttons: navy fill, white text. */
   --color-btn-primary-bg: #012971;
   --color-btn-primary-bg-hover: #0a3f9e;
-  --color-btn-primary-fg: #eaeef1;
+  --color-btn-primary-fg: #ffffff;
   --color-btn-success-fg: #eaeef1;
 
   /* status */
@@ -157,7 +155,16 @@ code, pre, .tabular {
   border-radius: 4px;
 }
 
-input, select, textarea, button { font: inherit; color: inherit; }
+/* Layered (unlike the other resets on this page) because it targets the same
+   elements our own text-color utilities do — button text colour especially.
+   Left unlayered, this plain-element rule sits outside any cascade layer and
+   so beats EVERY Tailwind utility regardless of specificity, no matter which
+   one appears later in the stylesheet: exactly what silently forced every
+   button's text back to its inherited ink colour instead of the colour its
+   own `text-[var(--color-btn-*-fg)]` class asked for. */
+@layer base {
+  input, select, textarea, button { font: inherit; color: inherit; }
+}
 
 ::placeholder { color: var(--color-muted); opacity: 1; }
 
@@ -178,6 +185,16 @@ summary::-webkit-details-marker { display: none; }
   background: var(--color-surface);
   border: 2px solid var(--color-focus);
   border-radius: 8px;
+}
+
+/* The top-of-page bar RouteProgress shows during client-side navigation. */
+@keyframes route-progress {
+  0% { transform: translateX(-100%); }
+  60% { transform: translateX(60%); }
+  100% { transform: translateX(220%); }
+}
+.animate-route-progress {
+  animation: route-progress 1.1s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

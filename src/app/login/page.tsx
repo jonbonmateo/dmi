@@ -79,7 +79,7 @@ export default async function LoginPage({
         </div>
 
         <p className="text-xs text-[var(--color-muted)]">
-          For automotive repair shops · Shop Marketing Pros
+          For automotive repair shops
         </p>
       </section>
 
