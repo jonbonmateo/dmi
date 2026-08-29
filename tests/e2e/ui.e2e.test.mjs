@@ -93,6 +93,31 @@ describe("sign-in journey", () => {
     await page.context().close();
   });
 
+  test("a guest in mock mode sees a usable Inspect form, same as any other role", async () => {
+    const page = await newPage();
+    await page.goto(`${app.base}/login`, { waitUntil: "networkidle" });
+    await Promise.all([
+      page.waitForURL(/\/mode/, { timeout: 20_000 }),
+      page.getByRole("button", { name: /continue as a guest/i }).click(),
+    ]);
+    await Promise.all([
+      page.waitForURL(/\/onboarding/, { timeout: 20_000 }),
+      page.getByRole("button", { name: /start in mock mode/i }).click(),
+    ]);
+    await Promise.all([
+      page.waitForURL((u) => new URL(u).pathname === "/", { timeout: 20_000 }),
+      page.getByRole("button", { name: /^skip$/i }).click(),
+    ]);
+
+    // Presence + enabled, not a real submit — this shared app instance's
+    // seeded-row-count assertions elsewhere depend on no extra runs existing.
+    await page.waitForSelector("#inspect-shop", { timeout: 20_000 });
+    await page.fill("#inspect-shop", "Guest UI Test Shop");
+    assert.equal(await page.getByRole("button", { name: /^inspect$/i }).isDisabled(), false);
+    assert.deepEqual(page.__errors, []);
+    await page.context().close();
+  });
+
   test("a bad password shows an error and does not sign anyone in", async () => {
     const page = await newPage();
     await page.goto(`${app.base}/login`, { waitUntil: "networkidle" });

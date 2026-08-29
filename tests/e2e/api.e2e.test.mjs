@@ -276,7 +276,7 @@ describe("password reset", () => {
 });
 
 describe("guests", () => {
-  test("a guest can read after choosing a mode, but cannot write", async () => {
+  test("a guest has full read/write access in mock mode, same as any other role", async () => {
     const c = makeClient(app.base);
     const { status, data } = await c.post("/api/auth/guest", {});
     assert.equal(status, 200);
@@ -294,7 +294,17 @@ describe("guests", () => {
       status: "resolved",
       outcome: "pass",
     });
-    assert.equal(write.status, 403, "guests must not be able to change a score");
+    assert.equal(write.status, 200, "in mock mode a guest can answer a question same as anyone else");
+
+    const started = await c.post("/api/runs", { shopName: "Guest Mock Shop" });
+    assert.equal(started.status, 202, "in mock mode a guest can start an inspection same as anyone else");
+  });
+
+  test("a guest with no mode chosen yet cannot write", async () => {
+    const c = makeClient(app.base);
+    await c.post("/api/auth/guest", {});
+    const res = await c.post("/api/runs", { shopName: "Guest No Mode Shop" });
+    assert.equal(res.status, 403, "writing needs a mode, and a guest defaults to none rather than mock");
   });
 
   test("a guest chooses a mode just like any other account", async () => {
@@ -496,13 +506,6 @@ describe("starting an inspection from the dashboard", () => {
 
     const res = await c.post("/api/runs", { shopName: "  " });
     assert.equal(res.status, 400);
-  });
-
-  test("a guest cannot start an inspection", async () => {
-    const c = makeClient(app.base);
-    await c.post("/api/auth/guest", {});
-    const res = await c.post("/api/runs", { shopName: "Guest Attempt Shop" });
-    assert.equal(res.status, 403, "guests are read-only everywhere, this included");
   });
 
   test("a session with no mode chosen yet cannot start an inspection", async () => {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { routeErrorResponse } from "@/lib/api-wrap";
 import { getStore } from "@/lib/storage";
-import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
+import { requireAuth } from "@/lib/auth/guard";
 import { intake } from "@/lib/intake";
 import { runPipeline } from "@/lib/pipeline";
 import { withMode } from "@/lib/runtime-mode";
@@ -61,8 +61,8 @@ const StartBody = z.object({
  */
 async function handlePost(req: Request) {
   // Same cost profile as resuming a run, so the same tighter cap applies —
-  // and guests stay read-only everywhere else in the app, this included.
-  const guard = await requireAuth(req, { roles: WRITE_ROLES, burstPerMinute: 10 });
+  // and, per the `write` option, a guest can only do this in mock mode.
+  const guard = await requireAuth(req, { write: true, burstPerMinute: 10 });
   if (!guard.ok) return guard.response;
   const { auth } = guard;
 

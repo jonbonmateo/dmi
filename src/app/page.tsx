@@ -54,7 +54,7 @@ export default async function Dashboard() {
         </div>
       </header>
 
-      {auth.user.role !== "guest" && <InspectForm />}
+      {(auth.user.role !== "guest" || auth.mode === "mock") && <InspectForm />}
 
       {rows.length === 0 ? (
         <EmptyState title="No inspections yet">

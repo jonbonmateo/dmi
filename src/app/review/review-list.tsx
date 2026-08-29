@@ -133,8 +133,8 @@ export function ReviewList({ rows, canAnswer }: { rows: ReviewRow[]; canAnswer: 
       {!canAnswer && (
         <div className="mb-5">
           <Callout tone="warn" title="Read only">
-            Guest sessions can read the queue but cannot change a score. Sign in with an account to
-            answer these.
+            Guest sessions can read live data but cannot change a score while in live mode. Switch to
+            mock mode, or sign in with an account, to answer these.
           </Callout>
         </div>
       )}

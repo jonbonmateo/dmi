@@ -190,7 +190,7 @@ export function LoginForm({
         )}
         {guestEnabled && (
           <p className="text-center text-xs text-[var(--color-muted)]">
-            Guests can choose live or mock mode like anyone else, but can only look — no saved changes.
+            Guests get the same features as any account, live or mock — changes just only save in mock mode.
           </p>
         )}
       </div>

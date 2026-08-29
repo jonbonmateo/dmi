@@ -6,15 +6,16 @@
 import { NextResponse } from "next/server";
 import { routeErrorResponse } from "@/lib/api-wrap";
 import { runPipeline } from "@/lib/pipeline";
-import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
+import { requireAuth } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 async function handlePost(req: Request, { params }: { params: Promise<{ runId: string }> }) {
   // Inspections cost API quota and hit real third parties, so they are rate
-  // limited harder than ordinary reads and closed to guests.
-  const guard = await requireAuth(req, { roles: WRITE_ROLES, burstPerMinute: 10 });
+  // limited harder than ordinary reads, and closed to guests unless they're
+  // in mock mode (see the `write` option's docs in guard.ts).
+  const guard = await requireAuth(req, { write: true, burstPerMinute: 10 });
   if (!guard.ok) return guard.response;
 
   const { runId } = await params;

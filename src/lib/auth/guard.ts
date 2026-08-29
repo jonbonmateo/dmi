@@ -10,6 +10,16 @@ import type { AuthContext, UserRole } from "./types";
 export interface GuardOptions {
   /** Roles allowed through. Default: any signed-in user. */
   roles?: UserRole[];
+  /**
+   * A mutating action, open to every role including guests — but only in
+   * mock mode. Feature parity between live and mock/guest use is the point
+   * (the only difference should be real data vs. fixtures), except that an
+   * anonymous guest session must never be able to spend real API quota or
+   * write to the real GoHighLevel/tracking sheet just by finding the sign-in
+   * page. A guest who chooses live mode can still look around live data —
+   * they just can't write while in it, same as they can't in mock.
+   */
+  write?: boolean;
   /** Skip CSRF (only for GETs, which never change state). */
   readOnly?: boolean;
   /** Requests per minute per session. */
@@ -60,10 +70,17 @@ export async function requireAuth(req: Request, opts: GuardOptions = {}): Promis
     };
   }
 
+  if (opts.write && auth.user.role === "guest" && auth.mode !== "mock") {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: "Guests can only make changes in mock mode. Choose mock mode, or sign in with an account to write live data." },
+        { status: 403 },
+      ),
+    };
+  }
+
   return { ok: true, auth };
 }
-
-/** Guests may read everything but may not write. */
-export const WRITE_ROLES: UserRole[] = ["admin", "member"];
 
 export { clientIp };

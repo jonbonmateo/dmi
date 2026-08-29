@@ -6,8 +6,9 @@
  * has to be a fact about the run, not a toggle someone may have flipped
  * halfway through.
  *
- * Every role can pick either mode, guests included — what a guest can't do
- * is write (see WRITE_ROLES), not which mode they look around in. So the
+ * Every role can pick either mode, guests included — a guest's only
+ * restriction is that writes need mock mode (see the `write` option on
+ * requireAuth, in guard.ts), not which mode they look around in. So the
  * only thing that can block "live" here is live mode itself not being
  * configured, never who's asking.
  */

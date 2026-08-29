@@ -12,13 +12,15 @@ import { getStore } from "@/lib/storage";
 import { totals } from "@/lib/scoring/rubric";
 import { refreshWeeklyStatus } from "@/lib/integrations/tracking";
 import type { Outcome } from "@/lib/types";
-import { requireAuth, WRITE_ROLES } from "@/lib/auth/guard";
+import { requireAuth } from "@/lib/auth/guard";
 
 export const runtime = "nodejs";
 
 async function handlePatch(req: Request, { params }: { params: Promise<{ itemId: string }> }) {
-  // Guests may read the queue but must not change anyone's score.
-  const guard = await requireAuth(req, { roles: WRITE_ROLES });
+  // Guests may answer questions same as anyone else, but only in mock mode
+  // (see the `write` option's docs in guard.ts) — never against real,
+  // live-inspected scores.
+  const guard = await requireAuth(req, { write: true });
   if (!guard.ok) return guard.response;
 
   const { itemId } = await params;

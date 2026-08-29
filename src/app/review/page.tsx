@@ -45,7 +45,7 @@ export default async function ReviewQueue({
     createdAt: i.createdAt,
   }));
 
-  const canAnswer = auth.user.role !== "guest";
+  const canAnswer = auth.user.role !== "guest" || auth.mode === "mock";
 
   return (
     <AppShell auth={auth} active="review" openReviews={openAll.length}>

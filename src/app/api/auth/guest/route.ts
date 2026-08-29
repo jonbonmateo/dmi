@@ -2,9 +2,12 @@
  * POST /api/auth/guest — a throwaway account for looking around.
  *
  * Guests get a real (short-lived) user record so their actions stay
- * attributable, and cannot write. They still choose live or mock mode like
- * any other account (see /api/auth/mode) — being a guest only limits what
- * they can do once signed in, not which mode they look around in.
+ * attributable, and choose live or mock mode like any other account (see
+ * /api/auth/mode). A guest has the same features as anyone else — they can
+ * start inspections and answer review questions same as a member — with one
+ * restriction: writes only work in mock mode (see the `write` option on
+ * requireAuth, in guard.ts), so an anonymous session can never spend real
+ * API quota or write to the real GoHighLevel/tracking sheet.
  */
 import { NextResponse } from "next/server";
 import { routeErrorResponse } from "@/lib/api-wrap";
@@ -43,7 +46,7 @@ async function handlePost(req: Request) {
     next: "/mode",
     mode: null,
     user: { id: user.id, name: user.name, role: user.role },
-    notice: "You are signed in as a guest and cannot change saved data.",
+    notice: "You are signed in as a guest. You can only save changes while in mock mode.",
   });
 }
 
