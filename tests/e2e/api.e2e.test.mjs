@@ -332,6 +332,39 @@ describe("CSRF and sessions", () => {
     });
     assert.equal(res.status, 401);
   });
+
+  test("an invalid-signature cookie visiting /login does not redirect-loop", async () => {
+    // Regression test for a real incident: middleware used to redirect any
+    // *cookied* visit to /login onward to /mode, without checking whether
+    // the cookie's signature actually verified. A stale/invalid cookie (e.g.
+    // left over from before an AUTH_SECRET rotation) bounced middleware
+    // /login -> /mode, /mode's real getAuth() rejected it and sent the
+    // browser back to /login, and middleware bounced it to /mode again —
+    // forever, until the browser gave up with ERR_TOO_MANY_REDIRECTS.
+    const res = await fetch(`${app.base}/login`, {
+      headers: { cookie: "dmi_session=forged.notarealsignature" },
+      redirect: "manual",
+    });
+    // The real fix: this must render the login page directly (200), not
+    // redirect anywhere at all — middleware no longer acts on cookie
+    // presence alone for this path.
+    assert.equal(res.status, 200, "a cookie present but invalid must not trigger any redirect from /login");
+  });
+
+  test("an invalid-signature cookie visiting a protected page redirects exactly once", async () => {
+    for (const path of ["/", "/mode", "/review", "/tracking"]) {
+      const res = await fetch(`${app.base}${path}`, {
+        headers: { cookie: "dmi_session=forged.notarealsignature" },
+        redirect: "manual",
+      });
+      assert.equal(res.status, 307, `${path} with an invalid cookie should redirect once`);
+      assert.match(
+        res.headers.get("location") ?? "",
+        /\/login/,
+        `${path} with an invalid cookie must redirect straight to /login, not bounce through /mode`,
+      );
+    }
+  });
 });
 
 describe("answering a review question", () => {

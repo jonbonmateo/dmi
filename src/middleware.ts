@@ -82,12 +82,19 @@ export function middleware(req: NextRequest) {
       to.search = pathname === "/" ? "" : `?next=${encodeURIComponent(pathname + req.nextUrl.search)}`;
       res = NextResponse.redirect(to);
     }
-  } else if (pathname === "/login" && hasCookie) {
-    const to = req.nextUrl.clone();
-    to.pathname = "/mode";
-    to.search = "";
-    res = NextResponse.redirect(to);
   } else {
+    // Deliberately NOT redirecting an already-cookied /login visit to /mode
+    // here: `hasCookie` only checks that a cookie exists, not that its HMAC
+    // still verifies against the server's current AUTH_SECRET (middleware
+    // has no crypto access — that's the whole point of the "bouncer, not the
+    // lock" split documented above). A stale or invalid-signature cookie
+    // (e.g. left over from before an AUTH_SECRET rotation) would otherwise
+    // create an infinite loop: middleware bounces /login → /mode on
+    // presence alone, /mode's real getAuth() rejects the bad cookie and
+    // sends the browser back to /login, forever. The login PAGE already
+    // does this same redirect after actually validating the session
+    // (`getAuth()` in src/app/login/page.tsx), which only ever fires when
+    // the cookie is genuinely good — so it can never loop.
     const headers = new Headers(req.headers);
     headers.set("x-nonce", nonce);
     res = NextResponse.next({ request: { headers } });
