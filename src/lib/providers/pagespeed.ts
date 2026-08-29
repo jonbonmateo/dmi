@@ -66,7 +66,7 @@ async function runStrategy(
     qs.append("category", c);
   }
   if (env.pageSpeedKey) qs.set("key", env.pageSpeedKey);
-  const res = await fetchJson<any>(`${API}?${qs}`, { timeoutMs: 90_000 });
+  const res = await fetchJson<any>(`${API}?${qs}`, { timeoutMs: 25_000 });
   if (!res.ok) {
     return {
       strategy,
@@ -85,9 +85,18 @@ async function runStrategy(
 export async function getPageSpeed(url: string): Promise<PageSpeedResult> {
   const mode = providerMode("pagespeed", env.pageSpeedKey ?? "unkeyed-ok", isMock());
   if (mode.live) {
-    // Sequential on purpose: PSI rate-limits parallel requests per key.
-    const mobile = await runStrategy(url, "mobile");
-    const desktop = await runStrategy(url, "desktop");
+    // Run both strategies in parallel rather than sequentially. A real
+    // Lighthouse run can take 20-60+ seconds on its own; two of them back to
+    // back risked blowing straight through the whole serverless function's
+    // time budget on this one provider call alone, before any other step in
+    // the pipeline got to run at all — that's what left a run stuck on
+    // "Checking website" forever on Vercel. Two keyed requests from a single
+    // inspection is nowhere near PSI's actual rate limit, so there's no real
+    // downside to the parallelism.
+    const [mobile, desktop] = await Promise.all([
+      runStrategy(url, "mobile"),
+      runStrategy(url, "desktop"),
+    ]);
     const failed = [mobile, desktop].filter((s) => s.error);
     return {
       status: failed.length === 2 ? "unable_to_evaluate" : "confirmed",
